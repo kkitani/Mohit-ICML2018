@@ -405,17 +405,16 @@ Since $\mathbf{R}_{\theta}(a) = \mathbf{Z}(a)^T\theta$ for linear parameters, it
     \hat{\bm{\epsilon}}(a) = \tilde{\bm{\epsilon}}(a) + \beta\mathbf{T}(a)\sum_{a'}\mathbf{S}(a')\hat{\bm{\epsilon}}(a')
 \end{split}    
 \end{align}
-Again both $\hat{\mathbf{Z}}(a)$ and $\hat{\bm{\epsilon}}(a)$ can be estimated via backwards recursion and is computationally similar to known model-based RL algorithm. Given these values calculating the choice-specific value function or the ex-ante value function for different values of $\theta$ requires simple matrix operations only.
+Again both $\hat{\mathbf{Z}}(a)$ and $\hat{\bm{\epsilon}}(a)$ can be estimated via backwards recursion and is computationally similar to known model-based RL algorithm.
 
 \subsection{Inverse Reinforcement Learning with CCPs}
+We now look at how to efficiently solve the IRL problem using the above value function representation with CCPs. 
+We compare against MaxEnt-IRL, since, as shown above, the original ex-ante value function representation is similar to MaxEnt-IRL.
+MaxEnt-IRL involves estimating the parameters $\theta$ of the reward function using an iterative procedure in which the value function needs to be estimated for each different value of $\theta$.
+In MaxEnt-IRL, we calculate the value function by solving the MDP problem using a model-based RL algorithm; since this happens repeatedly it can be prohibitively expensive.
 
-Maximum Entropy IRL (MaxEnt-IRL) \cite{ziebart2} involves estimating the parameters $\theta$ of the reward function under which a policy $\pi$ has maximum entropy subject to feature matching constraints. 
-Solving this problem leads to an iterative procedure in which the ex-ante value function or the choice-specific value function needs to be estimated at every step.
-In MaxEnt-IRL we calculate these by solving the RL algorithm using model-based RL.
+In contrast, the above value function representations (\eqref{eq:exante_inversion} and \eqref{eq:exante_linear}) can be used to estimate the value function much more efficiently. To see this, notice that in \eqref{eq:exante_inversion} we can pre-calculate the inverse matrix once. Alternately, for linear parameters we can pre-calculate \eqref{eq:choice_specific_Z_tilde}. Both of these pre-computations are similar to solving the MDP problem \textit{once}. Given these pre-computed values we can calculate the value function, for all different values of $\theta$, using simple matrix operations only. Thus, in contrast to solving a full MDP problem we only require simple matrix operations at every step of the optimization process. We call our method Conditional Choice Probability-Inverse Reinforcement Learning (CCP-IRL).
 
-The above ex-ante value function representations (\eqref{eq:exante_inversion}, \eqref{eq:exante_linear}) can be used to solve the IRL problem efficiently. To see this, notice that in \eqref{eq:exante_inversion} we can pre-calculate the inverse matrix once. Similarly, for linear parameters we can pre-calculate \eqref{eq:choice_specific_Z_tilde}. Given these values we can calculate the ex-ante value function using simple matrix operations.
-
-We now discuss the CCP-IRL algorithm and how it avoids repeatedly solving the original MDP problem \textcolor{blue}{(KK: In order for this statement to make sense, there needs to be a description of MaxEnt IOC or some other form of IRL which makes this point clear. Common feature of your writing is to leave a big chunks of information or assume too much of the reader. Try to put yourself more in the position of the first reader.)}. \textcolor{blue}{(KK: Again, just jumps into explanation without any justification or motivation. This makes for papers that are hard to follow.)}
 The pseudo-code for CCP-IRL is given in Algorithm~\ref{algo:ccp_irl_algorithm}, where $\mu_D$ is expert's feature expectations and $f$ are features at every state.
 Notice that the only quantity dependent on $\theta$ in \eqref{eq:exante_inversion} is $\mathbf{R}(a, \theta)$.
 Thus, to estimate $\mathbf{\overline{V}}$ using \eqref{eq:exante_inversion} we calculate $\mathbf{R}(a, \theta)$ for every $\theta$ value \emph{i.e.}, at every step of the iteration (Line 6).
