@@ -280,45 +280,6 @@ Expanding the expectation under the TIEV assumption on the shock variable allows
 Notice that \eqref{eq:ccps} is identical to the definition of the policy of the MaxEnt formulation in \cite{ziebart_phd}, which is derived from an entropic prior on trajectories. The CCP is derived by integrating out the TIEV shock variable. 
 
 
-\begin{figure*}[ht]
-\begin{minipage}[t]{0.45\textwidth}
-  %\vspace{0pt}  
-  \begin{algorithm}[H]
-    \caption{CCP-IRL algorithm} \label{algo:ccp_irl_algorithm}
-    \begin{algorithmic}[1]
-        %\Procedure{CCP-IRL}{$\mu_D,f, S, A, T, \gamma$}
-        \STATE {\bfseries Input:} $\mu_D,f, S, A, T, \gamma$
-        \STATE $\theta^{(0)} \gets$ init\_weights
-        \STATE $M \gets \left[I-\sum_{a}(S(a) \lambda) *\left[ \beta T(a)  \right]\right]^{-1}$ 
-        \STATE $\tilde{\epsilon} \gets \gamma - \log S(a)$
-        \FOR{$i\gets 1, n$}
-            \STATE $R^{(i)} \gets \theta^T f$
-            \STATE $V^{(i)} \gets M \times \sum_{a}{S(a) \times \left[ R^{(i)} +\tilde{\epsilon}\right]}$
-            \STATE $\pi_{\theta}^{(i)}(a|x) \gets e^{V^{(i)}(x_a) - V^{(i)}(x)}$
-            \STATE $E[\mu^{(i)}] \gets $ FORWARD PASS()
-            \STATE $\theta^{(i)} \gets \theta^{(i-1)} - \alpha \times (\mu_D - E[\mu^{(i)}])$
-        \ENDFOR
-    \end{algorithmic}
-  \end{algorithm}
-\end{minipage}%
-\qquad
-\begin{minipage}[t]{0.45\textwidth}
-  %\vspace{0pt}
-  \begin{algorithm}[H]
-    \caption{Forward Pass} \label{algo:forward_pass_algorithm}
-    \begin{algorithmic}[1]
-        \STATE {\bfseries Input:} policy $\pi_{\theta(a|x)}$
-        \STATE $D^{(0)}(x) \gets P(x_i = x_{initial})$
-        \FOR{$i\gets 1, n$}
-            \STATE $D^{(i-1)}(x_{goal}) \gets 0$
-            \STATE $D^{(i)}(x) \gets D^{(i)}(x) + \pi_{\theta}(a|x') D^{(i-1)}(x')$
-        \ENDFOR
-        \STATE $D(x) \gets \sum_{i}D^{(i)}(x)$ 
-        \STATE \textbf{return} $D(x)$
-    \end{algorithmic}
-  \end{algorithm}
-\end{minipage}
-\end{figure*}
 
 
 
@@ -407,40 +368,75 @@ Since $\mathbf{R}_{\theta}(a) = \mathbf{Z}(a)^T\theta$ for linear parameters, it
 \end{align}
 Again both $\hat{\mathbf{Z}}(a)$ and $\hat{\bm{\epsilon}}(a)$ can be estimated via backwards recursion and is computationally similar to known model-based RL algorithm.
 
+\begin{figure*}[ht]
+\begin{minipage}[t]{0.45\textwidth}
+  %\vspace{0pt}  
+  \begin{algorithm}[H]
+    \caption{CCP-IRL algorithm} \label{algo:ccp_irl_algorithm}
+    \begin{algorithmic}[1]
+        %\Procedure{CCP-IRL}{$\mu_D,f, S, A, T, \gamma$}
+        \STATE {\bfseries Input:} expert features $\mu_D$, ccp $\mathbf{S}$, transition $\mathbf{T}$, discount $\gamma$
+        \STATE $\theta^{(0)} \gets$ init\_weights
+        \STATE $\mathbf{M} \gets \left[\mathbf{I}-\sum_{a}(\mathbf{S}(a) \lambda) *\left[ \gamma \mathbf{T}(a)  \right]\right]^{-1}$ 
+        \STATE $\tilde{\bm{\epsilon}} \gets \gamma - \log \mathbf{S}(a)$
+        \FOR{$i\gets 1, n$}
+            \STATE $R^{(i)} \gets \mathbf{R}(\theta^{(i)}))$
+            \STATE $V^{(i)} \gets \mathbf{M} \times \sum_{a}{\mathbf{S}(a) \times \left[ R^{(i)} +\tilde{\bm{\epsilon}}\right]}$
+            \STATE $\pi_{\theta}^{(i)}(a|x) \gets e^{V^{(i)}(x_a) - V^{(i)}(x)}$
+            \STATE $E[\mu^{(i)}] \gets $ FORWARD PASS()
+            \STATE $\theta^{(i)} \gets \theta^{(i-1)} - \alpha \times (\mu_D - E[\mu^{(i)}])$
+        \ENDFOR
+    \end{algorithmic}
+  \end{algorithm}
+\end{minipage}%
+\qquad
+\begin{minipage}[t]{0.45\textwidth}
+  %\vspace{0pt}
+  \begin{algorithm}[H]
+    \caption{Forward Pass} \label{algo:forward_pass_algorithm}
+    \begin{algorithmic}[1]
+        \STATE {\bfseries Input:} policy $\pi_{\theta(a|x)}$
+        \STATE $D^{(0)}(x) \gets P(x_i = x_{initial})$
+        \FOR{$i\gets 1, n$}
+            \STATE $D^{(i-1)}(x_{goal}) \gets 0$
+            \STATE $D^{(i)}(x) \gets D^{(i)}(x) + \pi_{\theta}(a|x') D^{(i-1)}(x')$
+        \ENDFOR
+        \STATE $D(x) \gets \sum_{i}D^{(i)}(x)$ 
+        \STATE \textbf{return} $D(x)$
+    \end{algorithmic}
+  \end{algorithm}
+\end{minipage}
+\end{figure*}
+
+
 \subsection{Inverse Reinforcement Learning with CCPs}
-We now look at how to efficiently solve the IRL problem using the above value function representation with CCPs. 
-We compare against MaxEnt-IRL, since, as shown above, the original ex-ante value function representation is similar to MaxEnt-IRL.
-MaxEnt-IRL involves estimating the parameters $\theta$ of the reward function using an iterative procedure in which the value function needs to be estimated for each different value of $\theta$.
-In MaxEnt-IRL, we calculate the value function by solving the MDP problem using a model-based RL algorithm; since this happens repeatedly it can be prohibitively expensive.
+We now look at how to efficiently solve the IRL problem using the above value function representation. 
+We compare against MaxEnt-IRL, since, as shown above, the original ex-ante value function representation is exactly similar to MaxEnt-IRL.
+MaxEnt-IRL involves estimating the parameters $\theta$ of the reward function using an iterative procedure.
+At every step of the iteration we need to estimate the value function; this requires solving the MDP problem using a model-based RL algorithm. Since this happens repeatedly it can be prohibitively expensive.
 
-In contrast, the above value function representations (\eqref{eq:exante_inversion} and \eqref{eq:exante_linear}) can be used to estimate the value function much more efficiently. To see this, notice that in \eqref{eq:exante_inversion} we can pre-calculate the inverse matrix once. Alternately, for linear parameters we can pre-calculate \eqref{eq:choice_specific_Z_tilde}. Both of these pre-computations are similar to solving the MDP problem \textit{once}. Given these pre-computed values we can calculate the value function, for all different values of $\theta$, using simple matrix operations only. Thus, in contrast to solving a full MDP problem we only require simple matrix operations at every step of the optimization process. We call our method Conditional Choice Probability-Inverse Reinforcement Learning (CCP-IRL).
+In contrast, the above value function representations (\eqref{eq:exante_inversion} and \eqref{eq:exante_linear}) can be used to estimate the value function much more efficiently. To see this, notice that in \eqref{eq:exante_inversion} we can pre-calculate the inverse matrix once. Alternately, for linear parameters we can pre-calculate \eqref{eq:choice_specific_Z_tilde}. Both of these pre-computations are similar to solving the MDP problem \textit{once}. Given these pre-computed values we can calculate the value function, for all different values of $\theta$, using simple matrix operations only. Thus, in contrast to solving a full MDP problem using model-based RL algorithm, we only require simple matrix operations at every step of the iterative procedure. We call our method Conditional Choice Probability-Inverse Reinforcement Learning (CCP-IRL).
 
-The pseudo-code for CCP-IRL is given in Algorithm~\ref{algo:ccp_irl_algorithm}, where $\mu_D$ is expert's feature expectations and $f$ are features at every state.
-Notice that the only quantity dependent on $\theta$ in \eqref{eq:exante_inversion} is $\mathbf{R}(a, \theta)$.
-Thus, to estimate $\mathbf{\overline{V}}$ using \eqref{eq:exante_inversion} we calculate $\mathbf{R}(a, \theta)$ for every $\theta$ value \emph{i.e.}, at every step of the iteration (Line 6).
-But the inverse matrix $\mathbf{M}=\left[I-\sum_{a}(\mathbf{S}(a) \lambda) *\left[ \beta \mathbf{T}(a)  \right]\right]^{-1}$ is independent of $\theta$ and hence can be pre-computed once for all iterations (Line 3).
-This inverse matrix computes the state visitation frequency for each state, weighted by the appropriate discount factor and hence encompasses a large part of calculations involved in MaxEnt \cite{ziebart_phd}.
-Given this inverse matrix computing $\mathbf{\overline{V}}$ at any $\theta$ requires simple matrix operations (Line 7), which allows us to avoid solving the MDP using dynamic programming at every step of the iteration. \textcolor{blue}{(KK: Can you make sure that the notion is consistent here and in the Algorithm. Matrix should be math bold capital letters and vectors should be lower case bold or non-bold capital letters. Right now the differece between matrices and vectors and scalars are confusing and inconsistent.)}
+The pseudo-code for CCP-IRL for the most general case is given in Algorithm~\ref{algo:ccp_irl_algorithm}.
+The inverse matrix $\mathbf{M}=\left[I-\sum_{a}(\mathbf{S}(a) \lambda) *\left[ \beta \mathbf{T}(a)  \right]\right]^{-1}$ is independent of $\theta$ and is pre-computed once for all iterations (Line 3).
+At every step of the iteration, we calculate the reward for the given $\theta$ (Line 6). Given these, computing $\mathbf{\overline{V}}$ requires simple matrix operations only (Line 7). Thus, we avoid solving the complete MDP problem at every step of the optimization scheme.
+Intuitively, the inverse matrix $\mathbf{M}$ computes the state visitation frequency for each state, weighted by the appropriate discount factor and hence encompasses a large part of calculations involved in MaxEnt \cite{ziebart_phd}.
 
 \subsection{Estimating CCPs}
 
 We also note how to calculate the initial CCP estimates ($\mathbf{S}$). In their simplest form, the initial CCP estimates can be computed directly from $N$ expert trajectories each with $T_i$ time periods:  $\mathcal{D} = \{(a_{it},x_{it})_{t=0}^{T_i}:i=1,\dots,N\}$ in tabular form. An initial maximum likelihood estimate can be computed by maintaining a table over state-action pair occurrences. There is no restriction however on the representational form of CCPs and more complex functions (\emph{e.g.,} Deep Networks) can be used to represent CCPs. 
 
-From the robotics perspective, the process of learning the CCPs is exactly Imitation Learning (IL), where the policy is learned directly from demonstrations without the making the reward function explicit. The CCP IRL framework can be interpreted to be an imitation learning phase followed by a inverse reinforcement learning phase that makes use of a fully specified policy to estimate the reward function.
+From the robotics perspective, the process of learning the CCPs is exactly Imitation Learning (IL), where the policy is learned directly from demonstrations without making the reward function explicit. The CCP-IRL framework can then be interpreted as, an imitation learning phase followed by a inverse reinforcement learning phase that makes use of a fully specified policy to estimate the reward function.
 
 
 \subsection{Complexity Analysis}
-The main computation in CCP-IRL is to estimate the inverse matrix in \eqref{eq:exante_inversion}. This formulation is similar to solving the MDP problem once in value iteration (in matrix formulation).\cite{?Putterman}. 
-In contrast the main computation in MaxEnt-IRL is solving the same MDP problem multiple times.
-However, unlike MaxEnt-IRL where we need to \textit{repeatedly} solve the MDP using dynamic programming we only need to estimate the inverse matrix \textit{once}.
-Once found, estimating the MDP in CCP-IRL involves simple matrix computations and hence involve no significant computation overhead.
-
-Thus, assuming a total of $N$ iterations for the entire MaxEnt-IRL convergence and $T$ iterations for each backwards recursion, MaxEnt-IRL takes a total of $O(N\times T \times|A|\times|S|)$ \cite{ziebart_phd}. For CCP-IRL assuming the matrix inversion can be performed with state of the art matrix inversion method, we get a corresponding runtime of $O(|S|^{2.4}+T\times|A|\times|S|)$. This complexity can be further reduced to $O(T\times|A|\times|S|)$ for linear reward formulations. We derive this formulation in the supplementary section.
+The main computation in CCP-IRL is to estimate the inverse matrix in \eqref{eq:exante_inversion} or alternately estimate $\tilde{\mathbf{Z}}$ and $\tilde{\mathbf{E}}$ \eqref{eq:choice_specific_Z_tilde} for linear parameters. Both of these are computationally similar to solving the MDP problem \emph{once} \cite{?Putterman}. 
+In contrast, the main computation in MaxEnt-IRL is solving the same MDP problem \emph{repeatedly}.
+Thus, assuming a total of $N$ iterations till convergence and $T$ iterations for each backwards recursion; MaxEnt-IRL takes a total of $O(N\times T \times|A|\times|S|)$ \cite{ziebart_phd}. For CCP-IRL assuming the matrix inversion can be performed with state of the art matrix inversion method, we get a corresponding runtime of $O(|S|^{2.4}+T\times|A|\times|S|)$ for the general case and $O(T\times|A|\times|S|)$ for the linear reward formulation.
 
 We also look at how for large state spaces, we can avoid using matrix inversion and rather estimate the inverse matrix \eqref{eq:exante_inversion} using successive approximations.
-Defining $A \equiv \left(I- \beta \sum_{a}(\mathbf{S}(a) \lambda) *\left[ \mathbf{T}(a)  \right]\right)^{-1}$ we can write it as $A = (I - \beta F)^{-1}$ where $F$ is used as a shorthand for notational convenience. Premultiplying both sides with $(I - \beta F)$ we get $(I - \beta F)\times A = I$ which finally gives us $A = I + \beta F A$. We can now use this last equation to estimate the invese matrix $A$ by successive approximations. From a computational perspective this can be much more efficient compared to estimating the inverse directly. Next, we will empirically show the above computational gains in CCP-IRL as well as discuss the expert data requirements for CCP-IRL.
+Defining $A \equiv \left(I- \beta \sum_{a}(\mathbf{S}(a) \lambda) *\left[ \mathbf{T}(a)  \right]\right)^{-1}$ we can write it as $A = (I - \beta F)^{-1}$ where $F$ is used as a shorthand for notational convenience. Premultiplying both sides with $(I - \beta F)$ we get $(I - \beta F)\times A = I$ which finally gives us $A = I + \beta F A$. We can now use this last equation to estimate the inverse matrix $A$ by successive approximations. Although, from a computational perspective sometimes estimating the inverse matrix can be fast itself, Zeibart \yrcite{ziebart_phd} discusses some of these considerations. 
 
-\textcolor{green}{JRG: Isn't Monte-Carlo fast as well? Mohit would it bee possible to make that the value function approximation approach. It will also show that we can deal with continuous/discrete/mixed states easily }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
