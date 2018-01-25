@@ -92,6 +92,9 @@
 
 \usepackage{color}
 \definecolor{purple}{rgb}{0.58,0,0.83}
+\definecolor{red}{rgb}{1.0,0,0}
+\definecolor{blue}{rgb}{0,1.0,0}
+\definecolor{green}{rgb}{0,0,1.0}
 
 \begin{document}
 
@@ -160,24 +163,24 @@ We make an important connection to existing results in econometrics to describe 
 
 \section{Introduction}
 
-The problem of extracting the reward function of a task given observed optimal behavior has been studied in parallel in both robotics and economics. In robotics this literature is collected under the heading "Inverse Reinforcement Learning" (IRL), \cite{Ng2000, abbeel2004apprenticeship}. The aim here is to learn a reward function that best explains demonstrations of expert behavior so that a robotic system can reproduce expert like behavior. Alternatively, in economics it is referred to as "structural econometrics" \cite{miller, pakes, rust_gmc} and is used to help economists better understand human decision making. Both of the fields are similar in that both seek to uncover a \emph{latent} reward function of an underlying Markov Decision Process (MDP).
-Although both fields developed in parallel there has been very limited knowledge transfer between them. To alleviate this we make the connection between these two fields more explicit. We uncover different problem formulations which give rise to similar algorithms. Specifically, we show how the softmax value function in \cite{ziebart} is exactly similar to the ex-ante value function in \cite{rust_gmc} under Type-1 extremum assumption.
+The problem of extracting the reward function of a task given observed optimal behavior has been studied in parallel in both robotics and economics. In robotics this literature is collected under the heading "Inverse Reinforcement Learning" (IRL), \cite{Ng2000, abbeel2004apprenticeship}. The aim here is to learn a reward function that best explains demonstrations of expert behavior so that a robotic system can reproduce expert like behavior. Alternatively, in economics it is referred to as "structural econometrics" \cite{miller, pakes, rust_gmc} and is used to help economists better understand human decision making. Although both fields developed in parallel, they are similar in that both seek to uncover a latent reward function of an underlying Markov Decision Process (MDP).
 
+% Both of the fields are similar in that both seek to uncover a \emph{latent} reward function of an underlying Markov Decision Process (MDP).
+% Although both fields developed in parallel there has been very limited knowledge transfer between them. To alleviate this we make the connection between these two fields more explicit. We uncover different problem formulations which give rise to similar algorithms. Specifically, we show how the softmax value function in \cite{ziebart} is exactly similar to the ex-ante value function in \cite{rust_gmc} under Type-1 extremum assumption.
 
-Additionally, one of the main challenges in IRL applied to robotics is the large computational complexity of modern algorithms \cite{ziebart, Ratliff2006}. To infer the reward function of the underlying MDP, one must \textit{repeatedly} solve this MDP at every step of a reward parameter optimization scheme. The MDP solution, which is typically characterized by a value function, requires a computationally expensive Dynamic Programming (DP) procedure. Unfortunately, solving this DP step repeatedly makes IRL algorithms computationally prohibitive. In response, recent works have proposed  to find approximate IRL solution to deal with large environment spaces \cite{finn2016guided, levine2012continuous, huang2015approximate}.
+One of the main challenges in IRL applied to robotics is the large computational complexity of modern algorithms \cite{ziebart, Ratliff2006}. To infer the reward function of the underlying MDP, one must \textit{repeatedly} solve this MDP at every step of a reward parameter optimization scheme. The MDP solution, which is typically characterized by a value function, requires a computationally expensive Dynamic Programming (DP) procedure. Unfortunately, solving this DP step repeatedly makes IRL algorithms computationally prohibitive.
 
 The problem of computational complexity has also been studied in economics \cite{hotz, su2012constrained, aguirregabiria2002swapping}. Among the many works, Conditional Choice Probability (CCP) estimators \cite{hotz} are particularly interesting because of their computational efficiency.
 CCP estimators use CCP values to estimate the reward function of the MDP.
-The CCP values specify the optimal action for a state and are estimated from expert demonstrations. These estimators are computationally efficient since they avoid the repeated computation of the DP step by using an alternative representation of the MDP's value function. Specifically, it is shown that values functions can be decomposed into ratios of CCPs.
+The CCP values specify the optimal action for a state and are estimated from expert demonstrations. These estimators are computationally efficient since they avoid the repeated computation of the DP step by using an alternative representation of the MDP's value function.
 
-In this work we introduce Conditional Choice Probability Inverse Reinforcement Learning (CCP-IRL) by incorporating CCPs into IRL. We leverage results from \cite{rust_gmc, hotz, magnac} to formulate an estimation routine for the reward function with CCPs, that avoids repeated calls to the solver of the full dynamic decision problem. We test the CCP-IRL algorithm on multiple different IRL benchmarks and compare the results to the state-of-the-art IRL algorithm, MaxEnt-IRL \cite{ziebart}. In our experiments, we show that with CCP-IRL we can achieve up to 5$\times$ speedup without affecting the quality of the inferred reward function. Further, this speedup holds across large state spaces and increases for complex problems, such as, problems where value iteration takes much longer to converge. 
+In this work we introduce Conditional Choice Probability IRL (CCP-IRL) by incorporating CCPs into IRL. We leverage results from \cite{rust_gmc, hotz, magnac} to formulate an estimation routine for the reward function with CCPs, that avoids repeated calls to the solver of the full dynamic decision problem. We test the CCP-IRL algorithm on multiple different IRL benchmarks and compare the results to the state-of-the-art IRL algorithm, MaxEnt-IRL \cite{ziebart}. In our experiments, we show that with CCP-IRL we can achieve up to 5$\times$ speedup without affecting the quality of the inferred reward function. Further, this speedup holds across large state spaces and increases for complex problems, such as, problems where value iteration takes much longer to converge. 
 
-To summarize, in this work we make an important connection between economics and robotics to uncover different problem formulations that result in similar algorithms. We then use this connection to leverage the literature of conditional choice probabilities. For this, we propose a new IRL algorithm called CCP-IRL. We test the CCP-IRL algorithm on multiple different IRL benchmarks and show large speedup. We also discuss how the CCP approach is applicable to other important areas in IRL research.
-Overall, we believe explicitly pointing out the similarities and differences in the two fields, will help researchers better leverage results from the other field. We hope this will lead to more knowledge transfer between them.
+To summarize, in this work we make an important connection between economics and robotics to uncover different problem formulations that result in similar algorithms. We then use this connection to leverage the literature of conditional choice probabilities and propose a new IRL algorithm called CCP-IRL. We test the CCP-IRL algorithm on multiple different IRL benchmarks and show large speedup. Further, we also discuss how the CCP approach is applicable to other important areas in IRL research.
 
 
 %==========================================================%
-\section{IRL in Economics}
+\section{Preliminaries}
 
 In this section, we first introduce the MDP formulation as used in the econometrics literature under the name "Dynamic Discrete Choice Model". Following this, we show how the optimality equation is formulated under these assumptions, and how the resulting optimization problems can be related to traditional IRL algorithms.
 
@@ -314,8 +317,7 @@ Now, defining the expected shock given that action $a$ is optimal as $\tilde{\ep
 \end{align}
 Hotz and Miller \yrcite{hotz} further show that $\tilde{\epsilon}(a|x_t)$ depends on CCPs and distribution of $\epsilon$ only. They prove that the mapping between CCPs and choice specific value function is \emph{invertible}. Using this inverse mapping and assuming TIEV distribution for $\epsilon$, we get $\tilde{\epsilon}(a|x_t) = \gamma - \log \sigma(a|x_t)$.
 
-Notice that \eqref{eq:exantebellman_3} is linear in ex-ante value function ($\overline{V}(x_t)$). Thus, we can write a closed form solution for it.
-For this we stack the \emph{ex-ante} value function over all states and get,
+Using this result we will now write a closed form solution for $\overline{V}(x_t)$. For this we will first stack the \emph{ex-ante} value function over all states. Doing this we get,
 \begin{align} \label{eq:exantebellman_4}
     \begin{split}
     \overline{\mathbf{V}}=\sum_{a}\mathbf{S}(a) \times \left[\mathbf{R}_{\theta}(a)+\tilde{\bm{\epsilon}}(a)+\beta \mathbf{T}(a) \overline{\mathbf{V}}\right]
@@ -334,7 +336,7 @@ T(x_1|x_{|\mathcal{X}|},a),\dots,T(x_{|\mathcal{X}|},x_{|\mathcal{X}|},a)\\
 \end{array}\right]
 \end{align}
 Similarly, writing matrices $\mathbf{S}(a) = [\sigma(a|x); x\in\mathcal{X}]$ and $\tilde{\bm{\epsilon}}(a)=[\tilde{\epsilon}(a|x); x\in\mathcal{X}]$.
-Rearranging the terms in \eqref{eq:exantebellman_4} we get,
+Rearranging the terms in \eqref{eq:exantebellman_4},
 \begin{align}
     \begin{split}
     \overline{\mathbf{V}}-\sum_{a}\mathbf{S}(a) *\left[ \beta \mathbf{T}(a) \overline{\mathbf{V}}\right]=\sum_{a}\mathbf{S}(a) *\left[ \mathbf{R}_{\theta}(a)+\tilde{\bm{\epsilon}}(a)\right]
@@ -348,12 +350,11 @@ Defining $\lambda$ as a $1\times|\mathcal{X}|$ vector of ones, we can write the 
 & \qquad \times \left[\sum_{a}\mathbf{S}(a) *\left[ \mathbf{R}_{\theta}(a)+\tilde{\bm{\epsilon}}(a)\right]\right]
 \end{split}
 \end{align}
-Notice that the inverse matrix in \eqref{eq:exante_inversion} is similar to the inverse matrix required for value function estimation in value iteration (Theorem 9.2 \cite{ziebart_phd}). The computational complexity of solving the MDP is equivalent to known model-based RL algorithms.
+Notice that the inverse matrix in \eqref{eq:exante_inversion} is similar to the inverse matrix required for value function estimation in policy evaluation (Theorem 9.2 \cite{ziebart_phd}). The computational complexity of solving \eqref{eq:exante_inversion} is thus equivalent to known policy evaluation algorithms.
 
+\subsection{Linear Reward Parameterization}
 
-\subsection{Linear Reward Parametrization}
-
-The above closed form equation holds in the most general case of a non-parametric reward function. The equation can be further simplified for a linear reward parameterization $r_{\theta}(x,a) = \theta^{\top} z(x,a) $ where $z(x, a)$ is a feature representation for a given state-action pair. Stacking up the feature values we define $\mathbf{Z}(a) = [z(x, a); x \in \mathcal{X}]$. We can also stack the choice-specific value function to get $\mathbf{V}_a$. From \eqref{eq:exantebellman_4} we get
+The above closed form equation holds in the most general case of a non-parametric reward function. Equation \eqref{eq:exante_inversion} can be further simplified for a linear reward parameterization; $r_{\theta}(x,a) = \theta^{\top} z(x,a)$, where $z(x, a)$ is a feature representation for a given state-action pair. Stacking up the feature values we define $\mathbf{Z}(a) = [z(x, a); x \in \mathcal{X}]$. We can also stack the choice-specific value function to get $\mathbf{V}_a$. From \eqref{eq:exantebellman_4} we get
 \begin{align} \label{eq:exante_linear}
     \begin{split}
     \mathbf{V}_a=\mathbf{R}_{\theta}(a)+\tilde{\bm{\epsilon}}(a)+\beta \mathbf{T}(a) \sum_{a'}\mathbf{S}(a')\mathbf{V}_a'
@@ -366,7 +367,7 @@ Since $\mathbf{R}_{\theta}(a) = \mathbf{Z}(a)^T\theta$ for linear parameters, it
     \hat{\bm{\epsilon}}(a) = \tilde{\bm{\epsilon}}(a) + \beta\mathbf{T}(a)\sum_{a'}\mathbf{S}(a')\hat{\bm{\epsilon}}(a')
 \end{split}    
 \end{align}
-Again both $\hat{\mathbf{Z}}(a)$ and $\hat{\bm{\epsilon}}(a)$ can be estimated via backwards recursion and is computationally similar to known model-based RL algorithm.
+Again both $\hat{\mathbf{Z}}(a)$ and $\hat{\bm{\epsilon}}(a)$ can be estimated via backwards recursion and is computationally similar to a single policy evaluation algorithm.
 
 \begin{figure*}[ht]
 \begin{minipage}[t]{0.45\textwidth}
@@ -422,11 +423,11 @@ The inverse matrix $\mathbf{M}=\left[I-\sum_{a}(\mathbf{S}(a) \lambda) *\left[ \
 At every step of the iteration, we calculate the reward for the given $\theta$ (Line 6). Given these, computing $\mathbf{\overline{V}}$ requires simple matrix operations only (Line 7). Thus, we avoid solving the complete MDP problem at every step of the optimization scheme.
 Intuitively, the inverse matrix $\mathbf{M}$ computes the state visitation frequency for each state, weighted by the appropriate discount factor and hence encompasses a large part of calculations involved in MaxEnt \cite{ziebart_phd}.
 
-\subsection{Estimating CCPs}
+% \subsection{Estimating CCPs}
 
-We also note how to calculate the initial CCP estimates ($\mathbf{S}$). In their simplest form, the initial CCP estimates can be computed directly from $N$ expert trajectories each with $T_i$ time periods:  $\mathcal{D} = \{(a_{it},x_{it})_{t=0}^{T_i}:i=1,\dots,N\}$ in tabular form. An initial maximum likelihood estimate can be computed by maintaining a table over state-action pair occurrences. There is no restriction however on the representational form of CCPs and more complex functions (\emph{e.g.,} Deep Networks) can be used to represent CCPs. 
+% We also note how to calculate the initial CCP estimates ($\mathbf{S}$). In their simplest form, the initial CCP estimates can be computed directly from $N$ expert trajectories each with $T_i$ time periods:  $\mathcal{D} = \{(a_{it},x_{it})_{t=0}^{T_i}:i=1,\dots,N\}$ in tabular form. An initial maximum likelihood estimate can be computed by maintaining a table over state-action pair occurrences. There is no restriction however on the representational form of CCPs and more complex functions (\emph{e.g.,} Deep Networks) can be used to represent CCPs. 
 
-From the robotics perspective, the process of learning the CCPs is exactly Imitation Learning (IL), where the policy is learned directly from demonstrations without making the reward function explicit. The CCP-IRL framework can then be interpreted as, an imitation learning phase followed by a inverse reinforcement learning phase that makes use of a fully specified policy to estimate the reward function.
+% From the robotics perspective, the process of learning the CCPs is exactly Imitation Learning (IL), where the policy is learned directly from demonstrations without making the reward function explicit. The CCP-IRL framework can then be interpreted as, an imitation learning phase followed by a inverse reinforcement learning phase that makes use of a fully specified policy to estimate the reward function.
 
 
 \subsection{Complexity Analysis}
@@ -639,13 +640,17 @@ Past work in scaling IRL for large spaces has looked at discrete and continuous 
 
 For discrete spaces, past work such as, \cite{huang2015approximate} has mainly focused on approximating the value iteration step in IRL. However, since the MDP problem is still being solved at every step of an iterative procedure this does not scale to very large spaces. For continuous domains, most algorithms use local approximation to estimate the partition function in MaxEnt-IRL. Giving up on global optimality allows them to scale their algorithm to high dimensional continuous domains \cite{levine2012continuous, kalakrishnan2013learning, finn2016guided}.
 
-Alternately, some IRL algorithms have focused on a smaller subset of MDP problems. Todorov \yrcite{todorov2007linearly} introduced a new class of MDPs which are linearly solvable. Dvijotham and Todorov \yrcite{dvijotham2010inverse} present an efficient IRL algorithm for these MDPs. However, this new class of MDP's only solve a restricted form of general MDP formulation and is thus not applicable in all scenarios. Particularly, it is not clear how well these MDPs would generalize to problems where the reward (and as a consequence the value function) is a non-linear function of the states.
+Alternately, some IRL algorithms have focused on a smaller subset of MDP problems. Todorov \yrcite{todorov2007linearly} introduced a new class of MDPs which are linearly solvable. Dvijotham and Todorov \yrcite{dvijotham2010inverse} present an efficient IRL algorithm, which they call OptV, for these MDPs. However, this new class of MDP's only solve a restricted form of general MDP formulation and is thus not applicable in all scenarios. 
+Also, since OptV finds the parameters in value-function space it is not clear how meaningfully these features can be transferred across different tasks \cite{levine2012continuous}.
 %In contrast, our work makes no such approximation of the general MDP framework and is thus applicable everywhere.
 
 % In contrast our work focuses on the simpler discrete setting but with much larger state space.
 
 In contrast to previous work our CCP-IRL algorithm makes no assumption on the MDP framework and is thus generally applicable. 
-Although, we focus on discrete problem settings to introduce the key insights from the CCP framework in a well understood paradigm; the CCP approach is applicable to situations with continuous state spaces, continuous actions or non-stationary settings. However, given the complexity of applying MaxEnt-IRL to continuous spaces, it is not yet clear how can CCPs be effectively applied to high-dimensional continuous control tasks in robotics. We leave this for future work. 
+Although, we focus on discrete problem settings to introduce the key insights from the CCP framework in a well understood paradigm; the CCP approach is applicable to situations with continuous state spaces, continuous actions or non-stationary settings. However, given the complexity of applying MaxEnt-IRL to continuous spaces, it is not yet clear how can CCPs be effectively applied to high-dimensional continuous control tasks in robotics. We leave this for future work.
+
+Further, the mapping between exante value functions and conditional choices probabilities does not only apply to stationary discrete choice optimization problems, but also to non-stationary dynamic problems \cite{arcidiacono2014nonstationary}, and non-cooperative dynamic games \cite{bajari}. In the latter case researchers leverage off the notion that in equilibrium experts solve a dynamic optimization problem as a best response to the conditional choice probabilities their rivals in the game exhibit. But to highlight the connections between IRL and CCP estimation, we focus this paper on stationary discrete choice optimization problems,
+
 
 % CCP framework helps in the unidentification of the reward formulation
 % CCP formulation helps in using other empirial models developed by economists e.g. what if we use a different form of human optimality.
@@ -654,9 +659,10 @@ Although, we focus on discrete problem settings to introduce the key insights fr
 We now discuss some extensions of the CCP framework which are relevant in robotics and AI research.  
 The CCP framework provides methods to investigate the well known under-identification problem in IRL. Only recently, have researchers in AI focused on the unidentifiability problem in IRL. In \cite{amin2017repeated} the authors focus on identification guarantees when the agent can choose the task rewards in a fixed environment setting. In contrast, CCP approach clarifies necessary assumptions to ensure a ``unique" mapping from trajectories to the reward functions \cite{magnac}. CCP approach is also used in multi-agent settings where strategic situations involve multiple equilibria, this often necessitates some equilibrium selection rules. With CCPs and a dataset on a single path of play, it is possible to estimate rewards without having to solve the game and to correctly select the equilibrium in the data \cite{pese}.
 
-Finally, we look at the data requirement for CCP-IRL. A complete theoretical analysis of sample complexity of CCPs is beyond the scope of our initial work. However, we would like to refer the reader to Aguirregabiria and Mira \yrcite{aguirregabiria2002swapping} which discuss some sample properties of CCP estimators.
-More importantly, the authors show that one-step CCP estimators (such as CCP-IRL) can have large bias with insufficient data. 
-To reduce this bias they introduce a successive iteration procedure which results in a sequence of estimators. They further show that this iteration until convergence will realize the original MaxEnt-IRL estimator.
+
+%Finally, we look at the data requirement for CCP-IRL. A complete theoretical analysis of sample complexity of CCPs is beyond the scope of our initial work. However, we would like to refer the reader to Aguirregabiria and Mira \yrcite{aguirregabiria2002swapping} which discuss some sample properties of CCP estimators. More importantly, the authors show that one-step CCP estimators (such as CCP-IRL) can have large bias with insufficient data.  To reduce this bias they introduce a successive iteration procedure which results in a sequence of estimators. They further show that this iteration until convergence will realize the original MaxEnt-IRL estimator.
+
+Finally, from the robotics perspective, the process of learning the CCPs is exactly Imitation Learning (IL), where the policy is learned directly from demonstrations without making the reward function explicit. The CCP-IRL framework can then be interpreted as, an imitation learning phase followed by a inverse reinforcement learning phase that makes use of a fully specified policy to estimate the reward function.
 
 \section{Conclusion}
 

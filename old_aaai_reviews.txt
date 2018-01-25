@@ -1,0 +1,18 @@
+    Meta: 
+
+This paper applies conditional choice probability models originating in economics research to improve the efficiency of inverse reinforcement learning by avoiding the computational costs of solving (approximate) optimal control problems. This framework potentially provides a much richer set of probabilistic models than those derived from maximum entropy IRL, but the range of these is left unexplored. The improvements in efficiency seem to come with worse performance under smaller sample sizes, which decreases the significance of the contribution. The reviewers would have liked to have seen an application of these ideas to continuous-valued decision processes or other more interesting experimental settings.
+
+I will add that some previous work has very similar aims of reducing the computational burden of solving (approximate) optimal control problems, including "Inverse Optimal Control with Linearly-Solvable MDPs" (2010), and "Inverse Reinforcement Learning through Structured Classification" (2012). Discussion of the relationships to these papers and experimental comparisons are needed.
+
+Though the connections identified in this paper are important and will be of interest to IRL practitioners, I recommend that the paper first be revised to emphasize the novelty compared to previous work before appearing in a conference like AAAI.
+
+
+# Reviewer 
+
+Final: The new empirical tables in the author's response help clarify to me that the sample complexity issue may not be that bad, but these results do not represent a worst case analysis and the reference to the theoretical literature lacked a connection to the IRL setting, so my review is unchanged. I share some of the other reviewers' concerns about scalability outside of discrete domains but think the new approach is novel enough even with this limitation.
+
+Final: I'm still quite sceptical about the applicability of the approach but changed my score to "marginally above threshold" due to the better-than-expected sample complexity in the additional experiments.
+
+Final: I have read the author rebuttal and my evaluation score remains the same. 
+
+The proposed framework provides a nice way of reformulating IRL, but the experiment tasks are too classic (discrete). Needs to scale up to tasks that are visual domains (e.g. atari) or continuous action spaces (e.g. mujoco).
