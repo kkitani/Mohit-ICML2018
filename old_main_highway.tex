@@ -99,7 +99,7 @@
 \begin{document}
 
 \twocolumn[
-\icmltitle{Inverse Reinforcement Learning with \\ Conditional Choice Probabilities}]
+\icmltitle{Inverse Reinforcement Learning with \\ Conditional Choice Probabilities}
 
 % It is OKAY to include author information, even for blind
 % submissions: the style file will automatically remove it for you
@@ -144,7 +144,7 @@
 \icmlkeywords{Machine Learning, ICML}
 
 \vskip 0.3in
-
+]
 
 % this must go after the closing bracket ] following \twocolumn[ ...
 
@@ -168,15 +168,13 @@ The problem of extracting the reward function of a task given observed optimal b
 % Both of the fields are similar in that both seek to uncover a \emph{latent} reward function of an underlying Markov Decision Process (MDP).
 % Although both fields developed in parallel there has been very limited knowledge transfer between them. To alleviate this we make the connection between these two fields more explicit. We uncover different problem formulations which give rise to similar algorithms. Specifically, we show how the softmax value function in \cite{ziebart} is exactly similar to the ex-ante value function in \cite{rust_gmc} under Type-1 extremum assumption.
 
-One of the main challenges in IRL applied to robotics is the large computational complexity of modern algorithms \cite{ziebart, Ratliff2006}. To infer the reward function of the underlying MDP, one must \textit{repeatedly} solve this MDP at every step of a reward parameter optimization scheme. The MDP solution, which is typically characterized by a value function, requires a computationally expensive Dynamic Programming (DP) procedure. Unfortunately, solving this DP step repeatedly makes IRL algorithms computationally prohibitive.  
+One of the main challenges in IRL applied to robotics is the large computational complexity of modern algorithms \cite{ziebart, Ratliff2006}. To infer the reward function of the underlying MDP, one must \textit{repeatedly} solve this MDP at every step of a reward parameter optimization scheme. The MDP solution, which is typically characterized by a value function, requires a computationally expensive Dynamic Programming (DP) procedure. Unfortunately, solving this DP step repeatedly makes IRL algorithms computationally prohibitive.
 
 The problem of computational complexity has also been studied in economics \cite{hotz, su2012constrained, aguirregabiria2002swapping}. Among the many works, Conditional Choice Probability (CCP) estimators \cite{hotz} are particularly interesting because of their computational efficiency.
 CCP estimators use CCP values to estimate the reward function of the MDP.
 The CCP values specify the optimal action for a state and are estimated from expert demonstrations. These estimators are computationally efficient since they avoid the repeated computation of the DP step by using an alternative representation of the MDP's value function.
 
 In this work we introduce Conditional Choice Probability IRL (CCP-IRL) by incorporating CCPs into IRL. We leverage results from \cite{rust_gmc, hotz, magnac} to formulate an estimation routine for the reward function with CCPs, that avoids repeated calls to the solver of the full dynamic decision problem. We test the CCP-IRL algorithm on multiple different IRL benchmarks and compare the results to the state-of-the-art IRL algorithm, MaxEnt-IRL \cite{ziebart}. In our experiments, we show that with CCP-IRL we can achieve up to 5$\times$ speedup without affecting the quality of the inferred reward function. Further, this speedup holds across large state spaces and increases for complex problems, such as, problems where value iteration takes much longer to converge. 
-
-\cite{klein2012inverse} explore an approach similar in spirit to the framework we develop here. The key restriction in that paper is that the reward function must be expressed as a linear combination of basis functions of states. A key advantage of CCP-IRL is the ability to estimate reward functions semi-parametrically, a result due to \cite{magnac} which we discuss in the appendix. In addition, CCP-IRL allows us to leverage properties of finite-dependence to further reduce computational burden in more general environments. These results are discussed in \cite{arcidiacono2014nonstationary}.
 
 To summarize, in this work we make an important connection between economics and robotics to uncover different problem formulations that result in similar algorithms. We then use this connection to leverage the literature of conditional choice probabilities and propose a new IRL algorithm called CCP-IRL. We test the CCP-IRL algorithm on multiple different IRL benchmarks and show large speedup. Further, we also discuss how the CCP approach is applicable to other important areas in IRL research.
 
@@ -198,7 +196,7 @@ The motivation for this perturbation originates from a discrete choice literatur
 an alternative assumption is that there is an additional characteristic pertinent for decision making that the modeller does not observe. The simplest of way of modeling this unobserved characteristic is to treat it as an independent, identically distributed random variable, one for each element in the choice set. Adding a payoff-shock to each choice at every decision node in DDC models is the dynamic analogue to escape a similar lacuna.
 This vector of shocks is denoted $\vec{\epsilon} = [ \epsilon_{1} \cdots \epsilon_{|\mathcal{A}|} ]$ and $\vec{\epsilon}\in \mathbb{R}^{|\mathcal{A}|}$. Total rewards for action $a \in \mathcal{A}$ in state $x \in \mathcal{X}$ are therefore given by:
 \begin{eqnarray}
-r(a,x)+\epsilon_a
+r(a,x)+\epsilon_a.
 \end{eqnarray}
 . A shock value $\epsilon_a\in\mathbb{R}$ is often assumed to be distributed according to a Gumbel or Type 1 Extreme Value (TIEV) distribution,
 \begin{align}
@@ -296,11 +294,10 @@ For convenience, we will write the parameterized reward function as $r_{\theta}(
 
 \subsection{Model-based Reinforcement Learning with CCPs}
 
-Returning to the definition of the \emph{ex-ante} value function in Equation \eqref{eq:def_exante} and \eqref{eq:exantebellman}, notice that Equation \eqref{eq:exantebellman} is similar to the standard state-value function definition in reinforcement learning. \textcolor{blue}{Mohit, this is not the correct definition of the choice specific value function, I am re-writing these functions and using them again in the appendix} 
-Analogously, define the choice-specific value function $V_a(x_t)$ as the reward and future value net of the shock for action $a$:
+Returning to the definition of the \emph{ex-ante} value function in Equation \eqref{eq:def_exante} and \eqref{eq:exantebellman}, notice that Equation \eqref{eq:exantebellman} is similar to the standard state-value function definition in reinforcement learning. Analogously, define the choice-specific value function $V_a(x_t)$  as:
 \begin{align}
 \begin{split}
-V_a(x_t) &= r_{\theta}(x_t,a) \\
+V_a(x_t) &= E_{\vec{\epsilon}_t}\Big[r_{\theta}(x_t,a)+\epsilon_{at} \\
 & \qquad +\beta  \cdot E_{x_{t+1}|a,x_t} \left[ \overline{V}(x_{t+1}) \right] \Big].\\
 \end{split}
 \end{align}
@@ -353,15 +350,14 @@ Defining $\lambda$ as a $1\times|\mathcal{X}|$ vector of ones, we can write the 
 & \qquad \times \left[\sum_{a}\mathbf{S}(a) *\left[ \mathbf{R}_{\theta}(a)+\tilde{\bm{\epsilon}}(a)\right]\right]
 \end{split}
 \end{align}
-Notice that the inverse matrix in \eqref{eq:exante_inversion} is similar to the inverse matrix required for value function estimation in policy evaluation (Theorem 9.2 \cite{ziebart_phd}). The computational complexity of solving \eqref{eq:exante_inversion} is thus equivalent to known policy evaluation algorithms. 
-
+Notice that the inverse matrix in \eqref{eq:exante_inversion} is similar to the inverse matrix required for value function estimation in policy evaluation (Theorem 9.2 \cite{ziebart_phd}). The computational complexity of solving \eqref{eq:exante_inversion} is thus equivalent to known policy evaluation algorithms.
 
 \subsection{Linear Reward Parameterization}
 
 The above closed form equation holds in the most general case of a non-parametric reward function. Equation \eqref{eq:exante_inversion} can be further simplified for a linear reward parameterization; $r_{\theta}(x,a) = \theta^{\top} z(x,a)$, where $z(x, a)$ is a feature representation for a given state-action pair. Stacking up the feature values we define $\mathbf{Z}(a) = [z(x, a); x \in \mathcal{X}]$. We can also stack the choice-specific value function to get $\mathbf{V}_a$. From \eqref{eq:exantebellman_4} we get
 \begin{align} \label{eq:exante_linear}
     \begin{split}
-    \mathbf{V}_a=\mathbf{R}_{\theta}(a)+\beta \mathbf{T}(a) \sum_{a'}\mathbf{S}(a')\mathbf{V}_a'
+    \mathbf{V}_a=\mathbf{R}_{\theta}(a)+\tilde{\bm{\epsilon}}(a)+\beta \mathbf{T}(a) \sum_{a'}\mathbf{S}(a')\mathbf{V}_a'
     \end{split}
 \end{align}
 Since $\mathbf{R}_{\theta}(a) = \mathbf{Z}(a)^T\theta$ for linear parameters, it is easy to show that \eqref{eq:exante_linear} can be written as $\mathbf{V}_a = \hat{\mathbf{Z}}(a)^T\theta + \hat{\bm{\epsilon}}(a)$, where we define
@@ -372,8 +368,6 @@ Since $\mathbf{R}_{\theta}(a) = \mathbf{Z}(a)^T\theta$ for linear parameters, it
 \end{split}    
 \end{align}
 Again both $\hat{\mathbf{Z}}(a)$ and $\hat{\bm{\epsilon}}(a)$ can be estimated via backwards recursion and is computationally similar to a single policy evaluation algorithm.
-
-In the appendix, we discuss how to estimate the reward functions non-parametrically, conditional on assuming shocks are TIEV and one action reward can be normalized to zero. 
 
 \begin{figure*}[ht]
 \begin{minipage}[t]{0.45\textwidth}
@@ -437,7 +431,7 @@ Intuitively, the inverse matrix $\mathbf{M}$ computes the state visitation frequ
 
 
 \subsection{Complexity Analysis}
-The main computation in CCP-IRL is to estimate the inverse matrix in \eqref{eq:exante_inversion} or alternately estimate $\tilde{\mathbf{Z}}$ and $\tilde{\mathbf{E}}$ \eqref{eq:choice_specific_Z_tilde} for linear parameters. Both of these are computationally similar to solving the MDP problem \emph{once} \cite{puterman}. 
+The main computation in CCP-IRL is to estimate the inverse matrix in \eqref{eq:exante_inversion} or alternately estimate $\tilde{\mathbf{Z}}$ and $\tilde{\mathbf{E}}$ \eqref{eq:choice_specific_Z_tilde} for linear parameters. Both of these are computationally similar to solving the MDP problem \emph{once} \cite{?Putterman}. 
 In contrast, the main computation in MaxEnt-IRL is solving the same MDP problem \emph{repeatedly}.
 Thus, assuming a total of $N$ iterations till convergence and $T$ iterations for each backwards recursion; MaxEnt-IRL takes a total of $O(N\times T \times|A|\times|S|)$ \cite{ziebart_phd}. For CCP-IRL assuming the matrix inversion can be performed with state of the art matrix inversion method, we get a corresponding runtime of $O(|S|^{2.4}+T\times|A|\times|S|)$ for the general case and $O(T\times|A|\times|S|)$ for the linear reward formulation.
 
@@ -451,13 +445,12 @@ Defining $A \equiv \left(I- \beta \sum_{a}(\mathbf{S}(a) \lambda) *\left[ \mathb
 
 \section{Experiments}
 
-In this section we empirically validate,
-(1) the computational efficiency of CCP-IRL and (2) the underlying assumptions of consistent CCP estimates \emph{i.e.,} we show the data requirement for CCP-IRL.
-To this end we evaluate the performance of CCP-IRL on standard IRL tasks. Since, as shown above, CCP-IRL is most closely related to MaxEnt-IRL, we use it as a baseline method to compare our results on the benchmark tasks. Previously, both linear \cite{ziebart2010modeling} and non-linear \cite{wulfmeier2015maximum} formulations of MaxEnt-IRL have been used to estimate the reward functions. Hence, we discuss results for both formulations of CCP-IRL. For the former, we focus on problems of navigation in a traditional Gridworld setting with stochastic dynamics, while for the latter we choose the Objectworld task as described in \cite{Levine2013}.
+In this section we empirically validate, (1) the computational efficiency of CCP-IRL and (2) the underlying assumptions of consistent CCP estimates \emph{i.e.,} we show the data requirement for CCP-IRL.
+We experiment with both linear and non-linear reward settings since both of these have been used previously in IRL \cite{ziebart2010modeling, wulfmeier2015maximum}. For the former, we use a car driving simulator, similar to \cite{abbeel2004apprenticeship, klein2012inverse}, while for the latter we choose the Objectworld task as described in \cite{Levine2013}.
+Since, as shown above, CCP-IRL is closely related to MaxEnt-IRL, we use it as a baseline method to compare our results. 
+Another method which uses expert policy estimates in an IRL setting is, Structured Classification IRL (SCIRL) \cite{klein2012inverse}. However, SCIRL uses these estimates in a max-margin setting and is further limited to linear reward formulations \emph{only}. Thus, we additionally compare against SCIRL as well.
 
-For comparative analysis, we use both qualitative and quantitative results.
-For qualitative analysis, we directly compare the visualizations of the inferred reward functions for both CCP-IRL and MaxEnt-IRL.
-For quantitative comparison, we use negative log likelihood (NLL) \cite{kitani2012activity} and expected value difference (EVD) \cite{levine2011nonlinear} as the evaluation criterion. NLL is a probabilistic comparison metric and evaluates the likelihood of a path under the predicted policy. For a policy ($\pi$), NLL is defined as,
+For comparative analysis, we use negative log likelihood (NLL) \cite{kitani2012activity} and expected value difference (EVD) \cite{levine2011nonlinear} as the evaluation criterion. NLL is a probabilistic comparison metric and evaluates the likelihood of a path under the predicted policy. For a policy ($\pi$), NLL is defined as,
 \begin{align}
 NLL(\pi) = E_{\pi(a|s)}\big[-\log \prod_{t} \pi(a_{t}|s_{t}) \big]
 \end{align}
@@ -467,24 +460,25 @@ Further, to verify the computational improvement using CCP-IRL, we observe the t
 %For computational analysis all experiments were run on a PC with an Intel Xeon CPU E5-2660 v3 2.60 GHz (10 cores) processor with an NVIDIA TITAN X (Pascal) GPU.
 
 
-\subsection{Gridworld: Evaluating Linear Rewards} 
+\subsection{Highway simulator: Evaluating Linear Rewards} 
 
-To show the computational efficiency of CCP-IRL for linear parameterizations we focus on the standard gridworld experiments, since it is easy to formulate linear reward function in this setting. We empirically validate the computational efficiency of CCP-IRL. We also discuss how CCP-IRL requires consistent CCP estimates, which in turn depend on the amount of expert demonstrations available. For this, we plot the performance of our algorithms against the amount of expert trajectories. 
+We illustrate the computational efficiency of CCP-IRL for linear parameterizations using a car driving simulator.
+We empirically validate the computational efficiency of CCP-IRL, and also discuss how CCP-IRL requires consistent CCP estimates, which in turn depend on the amount of expert demonstrations available. For this, we plot the performance of our algorithms against the amount of expert trajectories.
+
 \begin{table}[t]
 \centering
 \def\arraystretch{1.0}% 
 \begin{tabular}{|c|c|c|c|c|c|}
 \hline
-N & Cell Size & MaxEnt (sec) & CCP (sec) & Speedup \\\hline
+|S| & MaxEnt (sec) & CCP (sec) & SCIRL & Speedup \\\hline
 
-32 & 4 & 584.30 & \textbf{283.81} & $\mathbf{2}\times$ \\
-32 & 8 & 635.63 & \textbf{266.18} & $\mathbf{3}\times$ \\
-64 & 8 & 3224.97 & \textbf{1024.42} & $\mathbf{3}\times$ \\
-128 & 16 & 18824.17 & \textbf{5312.52} & $\mathbf{3}\times$ \\
-256 & 32 & 68669.74 & \textbf{23299.00} & $\mathbf{3}\times$ \\
+$10^3$ & 4809.82 & 457.17  & \textbf{28.45} & $\mathbf{2}\times$ \\
+$10^4$ & 4809.82 & 457.17 & \textbf{172.15} & $\mathbf{3}\times$ \\
+$10^5$ & 27745.74 & 2835.38 & \textbf{485.59} & $\mathbf{3}\times$ \\
+$10^6$ & 197399.03 & 16982.17 & \textbf{1512.52} & $\mathbf{3}\times$ \\
 \hline
 \end{tabular}
-\caption{\textbf{Computation time} (averaged over multiple runs) comparison between MaxEnt and CCP for gridworld settings. Each experiment was run for 50 iterations.}
+\caption{\textbf{Computation time} (averaged over multiple runs) comparison between different IRL algorithms for Highway MDP settings. Each experiment was run for same number of iterations.}
 \label{table:table_results_macro_cells}
 \end{table}
 
@@ -493,10 +487,10 @@ N & Cell Size & MaxEnt (sec) & CCP (sec) & Speedup \\\hline
 \begin{figure}[t]
 \centering
   \begin{tabular}{cc}
-    \MSHangBox{\includegraphics[width=0.22\textwidth]{images/gridworld/macro_cells/grid_16_macro_2_lr_05/ll_ccp_vs_maxent_per_traj.pdf}}&
-    \MSHangBox{\includegraphics[width=0.22\textwidth]{images/gridworld/macro_cells/grid_16_macro_2_lr_05/evd_multiple_tries.pdf}}
+    \MSHangBox{\includegraphics[width=0.22\textwidth]{images/highway/medium_mdp/test_nll.pdf}}&
+    \MSHangBox{\includegraphics[width=0.22\textwidth]{images/highway/medium_mdp/test_evd.pdf}}
     \end{tabular}
-    \caption{Results for gridworld of size 16 with macro-cells of size 2. Left: Minimum NLL results with varying number of trajectories. Right: Expected Value Difference results. For few trajectories CCP-IRL shows much larger variance as compared to MaxEnt-IRL.}
+    \caption{Results for Highway MDP with 5,000 states. Left: Minimum NLL results with varying number of trajectories. Right: Expected Value Difference results. As seen the sample complexity of CCP-IRL is very close to SCIRL and not much worse than MaxEnt-IRL.}
     \label{fig:img_maxent_vs_ccp_gridworld_macro_cell}
 \end{figure}
 
@@ -521,37 +515,19 @@ N & Cell Size & MaxEnt (sec) & CCP (sec) & Speedup \\\hline
 %     \label{fig:img_gridworld_maxent_vs_ccp_time_discount}
 % \end{figure}
 
-We use the macro-cell GridWorld environment \cite{abbeel2004apprenticeship} in our experiment. This is a slightly more complex form of the standard gridworld navigation problem and provides a good basis to compare the two algorithms. 
-In this setting, the $N \times N$ grid is divided into non-overlapping square regions (macro-cells). Each region contains multiple grid cells and each cell in a region shares the same reward. Similar to \cite{abbeel2004apprenticeship}, for every region we select a positive reward $r \in (0, 1)$ with probability of $0.1$ and $r = 0$ with probability $0.9$. This reward distribution leads to positive rewards in few macro cells which results in interesting policies to be learned and hence requires more precise CCP estimates to match expert behavior.
+Similar to previous works, we use a car driving simulator to show the efficiency of our proposed approach in a linear reward setting. The goal in this environment is to drive on a busy multi-lane highway without crashing. The agent's car can either move left or right, accelerate, decelerate or keep a constant speed. We use a hand tuned reward, which penalizes off-road driving and collisions while favoring high speed. 
 
-Since all the cells in the same region share the same reward, our feature representation is a one-hot encoding of the region that cell belongs to \emph{e.g.}, in a grid world of size $N=64$ and macro cell of size 8 we have 64 regions and thus each state vector is of size 64. Further, we assume a stochastic wind with probability $0.3$ and the agent can move only in four directions. 
+For our reward feature vector, we use a discretization of the state space. In the simplest case, similar to, Klein \emph{et al.} \yrcite{klein2012inverse}, we use 9 horizontal positions for the user's car, 3 horizontal and 9 vertical positions for the closest traffic's car and 3 speeds. This gives us a feature vector of size $\mathcal{R}^{729}$. However, such a representation does not scale to much larger MDPs, hence for such MDPs, we group adjacent lanes together to keep the feature vector representation compact.
 
-First, we analyze the performance of both algorithms given different amounts of expert trajectories.
+First, we analyze the performance of CCP-IRL given different amounts of expert trajectories.
 Figure \ref{fig:img_maxent_vs_ccp_gridworld_macro_cell} compares the NLL and EVD results against increasing number of expert trajectories.
-As seen above, both algorithms show poor performance given very few trajectories (< 20 trajectories).
-However, with moderate number of trajectories MaxEnt-IRL approaches expert behavior while CCP-IRL is still comparatively worse.
-Finally, with sufficiently large number of trajectories (> 60) both algorithms converge to expert behavior. 
-CCP-IRL's poor performance with few expert demonstrations reflect its dependence on sufficient amount of input data.
-Since CCP estimates are calculated from input data CCP-IRL needs a sufficient (relatively larger than MaxEnt-IRL) amount of trajectories to get consistent CCP estimates.
-% This is expected given that we need sufficient amount of trajectories to get consistent CCP estimates. 
-% This requirement for more input trajectories can be solved for robotic tasks with autonomous data aquisition.
-
-% These results show that CCP-IRL's performance on the input trajectories to get consistent CCP estimates.  since consistent CCP estimates require sufficient input trajectories 
-%of CCPs which in turn are directly inferred from the data.
-%which requires a sufficient number of trajectories to arrive at consistent estimates.
-%Many robotic tasks use simulations or autonomous techniques to gather data, in which case the requirement for large number of trajectories can be easily satisfied. 
-
-A qualitative comparison of the rewards inferred by both algorithms, given few trajectories, is shown in Figure \ref{fig:img_reward_map_gridworld_macro_cell}.
-Notice that the darker regions in the true reward are similarly darker for both algorithms. Thus, both algorithms are able to infer the general reward distribution. However, MaxEnt-IRL is able to match the true reward distribution at a much finer level (since less discrepancy compared to the true reward) and hence the underlying policy more closely as compared to CCP-IRL.
-% inferred reward function is worse as compared to MaxEnt-IRL.
+As seen above, all algorithms show poor performance given very few trajectories (< 20 trajectories).
+However, with moderate number of trajectories ($\sim$30) all algorithms approach expert behavior, although, CCP-IRL requires slightly more number of trajectories. The impressive performance of CCP-IRL and SCIRL reflect that exploiting the MDP structure with expert trajectories can help avoiding the MDP problem repeatedly.
 
 %Finally we compare the computation cost for both algorithms across large state spaces ($|S| \in \{10^3, 10^4\}$) in Table \ref{table:table_results_macro_cells}.
 %As before, CCP-IRL is almost 2x as fast as MaxEnt-IRL across state spaces. Additionally, for the last two rows the only difference in the experiments is in terms of the feature size, since we get similar performance improvement for both settings this indicates that the speedup in CCP-IRL is independent of the dimension of $z(a, x_t)$. This is important since in CCP-IRL the backwards recursion happens on the $z(a, x_t)$ vector while in MaxEnt-IRL it happens on the scalar reward which might give an impression of the former being much more computationally expensive.
 
-Finally, we verify the computational advantage for CCP-IRL across large state spaces ($|S| \in \{10^3, 10^6\}$) in Table~\ref{table:table_results_macro_cells}. CCP-IRL is almost 3$\times$ faster than MaxEnt-IRL, across both large and small state spaces. Notice that this gives a huge advantage when running on large spaces since MaxEnt-IRL can be prohibitively expensive in such settings.
-%than MaxEnt-IRL across different sized state spaces.
-
-% Additionally, we also observe the affect of feature dimension on computation complexity. Notice the last two rows of Table \ref{table:table_results_macro_cells} have same state space but different feature sizes. Given these differences we still get similar (~2x) performance improvement for CCP-IRL which indicates that this speedup is largely independent of the dimension of $z(a, x_t)$ \eqref{eq:choice_specific_linear_param}. This is important since in CCP-IRL the backwards recursion happens on the $z(a, x_t)$ vector while in MaxEnt-IRL it happens on the scalar reward which might give an impression of the former being much more computationally expensive.
+We also verify the computational advantage for CCP-IRL across large state spaces ($|S| \in \{10^3, 10^6\}$) in Table~\ref{table:table_results_macro_cells}. CCP-IRL is almost 10$\times$ faster than MaxEnt-IRL, across both large and small state spaces. This gives a huge advantage when running on large spaces since MaxEnt-IRL is prohibitively expensive in such settings. However, SCIRL is much faster than both CCP-IRL and MaxEnt-IRL. This is because rather than solving a complex maximum entropy problem, SCIRL solves a maximum margin problem. However, such structured margin classifiers suffer from serious drawbacks as discussed in \cite{ziebart2010modeling}. Additionally, as we show below, SCIRL works for the linear reward parameterization only, which greatly reduces its applicability in complex scenarios.
 
 \begin{table}[t]
 \centering
@@ -614,7 +590,7 @@ As before, we verify both (1) the computational advantage provided by CCP-IRL (D
 
 The Objectworld environment consists of a grid of $N \times N$ states. At each state the agent can take 5 actions, including movement in 4 directions and staying in place. Spread through the grid are random objects, each with an inner and outer color. Each of these colors is chosen from a set of $C$ colors. The reward for each cell(state) is positive if the cell is within distance 3 of color 1 and distance 2 of color 2, negative if only within distance 3 of color 1 and zero in all other cases. For our feature vector we use a continuous set of values $x \in \mathbb{R}^{2C}$, where $x_i$ and $x_{i+1}$ is the shortest distance from the state to the \emph{i'th} inner and outer color respectively. Since the reward is only dependent on two colors, features for other colors act as distractors. 
 
-We use DeepMaxEnt-IRL \cite{wulfmeier2015maximum} as the baseline, using similar deep neural network architecture for both algorithms. Precisely, we use a 2-layer feed-forward network with rectified linear units. We use the Adam \cite{kingma2014adam} optimizer with the initial learning rate set to $10^{-3}$.
+We use DeepMaxEnt-IRL \cite{wulfmeier2015maximum} as the baseline, using similar deep neural network architecture for both algorithms. Precisely, we use a 2-layer feed-forward network with rectified linear units. We use the Adam \cite{kingma2014adam} optimizer with the initial learning rate set to $10^{-3}$. As before, we also compare against SCIRL; however, since SCIRL assumes linear reward parameterization we show that it fails to learn the true reward parameters.
 
 We quantitatively analyze the performance of our proposed DeepCCP-IRL algorithm. 
 Figure \ref{fig:img_objectworld_maxent_vs_ccp_lr_01} compares the NLL and EVD results for both algorithms. Notice that as observed before, with few expert trajectories both algorithms perform poorly. However, DeepMaxEnt-IRL matches expert performance with moderate number of trajectories ($\approx 20$), while DeepCCP-IRL requires relatively large number of trajectories ($\approx 40$).
@@ -855,278 +831,143 @@ We have described an alternative framework for inverse reinforcement learning (I
 
 \clearpage
 
-% \subsection{Hotz-Miller's CCP Method}
+\subsection{Hotz-Miller's CCP Method}
 
-% Our aim in Inverse Reinforcement Learning is to find the parameterized reward function $r(\theta)$ for the given MDP/R. We will now show how we can leverage the non-parameteric estimates of choice conditional probabilities to efficiently estimate the parameters($\theta$) of the reward function for both linear and non-linear parameterization. 
-% Denote the choice-specific value function as the value associated with action $a$ excluding $\epsilon_a$ as:
-% \begin{align}\label{eq:vamax}
-% \begin{split}
-% V_a(x_t) &\triangleq r(a,x_t)+\beta \sum_{x_{t+1}\in\mathcal{X}}T(x_{t+1}|x_t,a) \overline{V}(x_{t+1}) \\
-% %&=r(a,x_t)+\beta \sum_{x_{t+1}\in\mathcal{X}}T(x_{t+1}|x_t,a) \\
-% %& \qquad \times E_{\vec{\epsilon}_{t+1}} \max_{a'}\left\{V_{a'}(x_{t+1})+\epsilon_{t+1})\right\} \\
-% &=r(a, x_t) + \sum_{j=1}^{T-t}\beta^{j}E_{x_{t+j}|a_t,x_t} \\
-% & \qquad \big[r(x_{t+j}, a_{t+j})+ E_{\epsilon_{t+j}|a_t, x_t}\left[\epsilon(x_{t+j}, a_{t+j})\right] \big]
-% \end{split}
-% \end{align}
+Our aim in Inverse Reinforcement Learning is to find the parameterized reward function $r(\theta)$ for the given MDP/R. We will now show how we can leverage the non-parameteric estimates of choice conditional probabilities to efficiently estimate the parameters($\theta$) of the reward function for both linear and non-linear parameterization. 
+Denote the choice-specific value function as the value associated with action $a$ excluding $\epsilon_a$ as:
+\begin{align}\label{eq:vamax}
+\begin{split}
+V_a(x_t) &\triangleq r(a,x_t)+\beta \sum_{x_{t+1}\in\mathcal{X}}T(x_{t+1}|x_t,a) \overline{V}(x_{t+1}) \\
+%&=r(a,x_t)+\beta \sum_{x_{t+1}\in\mathcal{X}}T(x_{t+1}|x_t,a) \\
+%& \qquad \times E_{\vec{\epsilon}_{t+1}} \max_{a'}\left\{V_{a'}(x_{t+1})+\epsilon_{t+1})\right\} \\
+&=r(a, x_t) + \sum_{j=1}^{T-t}\beta^{j}E_{x_{t+j}|a_t,x_t} \\
+& \qquad \big[r(x_{t+j}, a_{t+j})+ E_{\epsilon_{t+j}|a_t, x_t}\left[\epsilon(x_{t+j}, a_{t+j})\right] \big]
+\end{split}
+\end{align}
 
-% \textbf{Linear Parameters:} Many traditional IRL algorithms such as, \cite{abbeel2004apprenticeship} \cite{ziebart} assume that the reward is a linear combination of known features $z$. Assuming this we will now show how we can efficiently estimate $V_a(x_t)$ for different values of $r(\theta)$.
+\textbf{Linear Parameters:} Many traditional IRL algorithms such as, \cite{abbeel2004apprenticeship} \cite{ziebart} assume that the reward is a linear combination of known features $z$. Assuming this we will now show how we can efficiently estimate $V_a(x_t)$ for different values of $r(\theta)$.
 
-% For linear parameterization we can write $r(a, x_t) = z(a, x_t)^T\theta$, where $z(a, x_t)$ are the set of basis functions (features) known to us.
-% Notice from \eqref{eq:vamax}, $V_a(x_t)$ is nothing but the expected and discounted sum of future rewards and shock values respectively. Thus we can split \eqref{eq:vamax} into two parts.
-% Define $\tilde{z}(a, x_t)$ and $\tilde{e}(a, x_t)$ as the expected and discounted sum of current and future $z$ values and $\epsilon$ values respectively. Given this we can break \eqref{eq:vamax} into,
-% \begin{align}\label{eq:choice_specific_linear_param}
-% \begin{split}
-% V_a(x_t) & = \tilde{z}(a, x_t)^T \theta + \tilde{e}(a, x_t) \\
-% \tilde{z}(a, x_{t}, \theta) & = z(a, x_{t}) + \sum_{j=1}^{T-t}\beta^{j} E_{x_{t+j}|a,x_t} \\
-% & \qquad \times \left[ z\left(\pi^{*}\big( x_{t+j}, \epsilon_{t+j}, \theta \right), x_{t+j} \big) \right] \\
-% \end{split}
-% \end{align}
-% where $\pi^{*}(x_{t}, \epsilon_{t}, \theta)$ is the optimal policy. We will now show that both $\tilde{z}$ and $\tilde{e}$ need to be estimated only once.
-% To achieve this notice that, we can get consistent estimates of $\pi^{*}(x_t, \epsilon_t, \theta)$ from CCPs, hence we can write \eqref{eq:choice_specific_linear_param} as,
-% \begin{align}\label{eq:z_tilde_ccp}
-% \begin{split}
-%   \tilde{z}(a, x_{t}, \theta) & = z(a, x_t) + \sum_{j=1}^{T-t} \beta^{j} E_{x_{t+j}|a_t=a, x_t} \\
-%   & \qquad \left[ \sum_{a_{t+j}} P(a_{t+j}|x_{t+j}) z(a_{t+j}, x_{t+j}) \right] \\
-%   \end{split}
-% \end{align}
-% We can very similarly write the above expression for $\tilde{e}(a, x_t, \theta)$ replacing $z(a, x_t)$ with $E[\epsilon_t(a)|x_t, a]$. For notational convenience we define $e(a, x_t) \equiv E[\epsilon_t(a)|x_t, a]$,
-% \begin{align}\label{eq:e_tilde}
-% \begin{split}
-%   \tilde{e}(a, x_{t}, \theta) & = \sum_{j=1}^{T-t}\beta^{j} E_{x_{t+j}|a,x_t} \\
-%   %& \qquad \times \left[ e\left(\pi^{*}\big( x_{t+j}, \epsilon_{t+j}, \theta \right), \epsilon_{t+j} \big) \right] \\
-%   %& = \sum_{j=1}^{T-t} \beta^{j} E_{x_{t+j}|a_t=a, x_t} \\
-%   & \qquad \left[ \sum_{a_{t+j}} P(a_{t+j}|x_{t+j}) e(a_{t+j}, x_{t+j}) \right] \\
-%   \end{split}
-% \end{align}
+For linear parameterization we can write $r(a, x_t) = z(a, x_t)^T\theta$, where $z(a, x_t)$ are the set of basis functions (features) known to us.
+Notice from \eqref{eq:vamax}, $V_a(x_t)$ is nothing but the expected and discounted sum of future rewards and shock values respectively. Thus we can split \eqref{eq:vamax} into two parts.
+Define $\tilde{z}(a, x_t)$ and $\tilde{e}(a, x_t)$ as the expected and discounted sum of current and future $z$ values and $\epsilon$ values respectively. Given this we can break \eqref{eq:vamax} into,
+\begin{align}\label{eq:choice_specific_linear_param}
+\begin{split}
+V_a(x_t) & = \tilde{z}(a, x_t)^T \theta + \tilde{e}(a, x_t) \\
+\tilde{z}(a, x_{t}, \theta) & = z(a, x_{t}) + \sum_{j=1}^{T-t}\beta^{j} E_{x_{t+j}|a,x_t} \\
+& \qquad \times \left[ z\left(\pi^{*}\big( x_{t+j}, \epsilon_{t+j}, \theta \right), x_{t+j} \big) \right] \\
+\end{split}
+\end{align}
+where $\pi^{*}(x_{t}, \epsilon_{t}, \theta)$ is the optimal policy. We will now show that both $\tilde{z}$ and $\tilde{e}$ need to be estimated only once.
+To achieve this notice that, we can get consistent estimates of $\pi^{*}(x_t, \epsilon_t, \theta)$ from CCPs, hence we can write \eqref{eq:choice_specific_linear_param} as,
+\begin{align}\label{eq:z_tilde_ccp}
+\begin{split}
+  \tilde{z}(a, x_{t}, \theta) & = z(a, x_t) + \sum_{j=1}^{T-t} \beta^{j} E_{x_{t+j}|a_t=a, x_t} \\
+  & \qquad \left[ \sum_{a_{t+j}} P(a_{t+j}|x_{t+j}) z(a_{t+j}, x_{t+j}) \right] \\
+  \end{split}
+\end{align}
+We can very similarly write the above expression for $\tilde{e}(a, x_t, \theta)$ replacing $z(a, x_t)$ with $E[\epsilon_t(a)|x_t, a]$. For notational convenience we define $e(a, x_t) \equiv E[\epsilon_t(a)|x_t, a]$,
+\begin{align}\label{eq:e_tilde}
+\begin{split}
+  \tilde{e}(a, x_{t}, \theta) & = \sum_{j=1}^{T-t}\beta^{j} E_{x_{t+j}|a,x_t} \\
+  %& \qquad \times \left[ e\left(\pi^{*}\big( x_{t+j}, \epsilon_{t+j}, \theta \right), \epsilon_{t+j} \big) \right] \\
+  %& = \sum_{j=1}^{T-t} \beta^{j} E_{x_{t+j}|a_t=a, x_t} \\
+  & \qquad \left[ \sum_{a_{t+j}} P(a_{t+j}|x_{t+j}) e(a_{t+j}, x_{t+j}) \right] \\
+  \end{split}
+\end{align}
 
-% \cite{hotz} show that $e(a, x_t)$ depends on conditional choice probabilities and distribution of $\epsilon$ only. Further, they prove that the mapping between CCPs and choice specific value function is invertible. Using this inverse mapping and assuming TIEV distribution for $\epsilon$, we get $e(a, x_t) = \gamma - \log P(a|x_t)$.
+\cite{hotz} show that $e(a, x_t)$ depends on conditional choice probabilities and distribution of $\epsilon$ only. Further, they prove that the mapping between CCPs and choice specific value function is invertible. Using this inverse mapping and assuming TIEV distribution for $\epsilon$, we get $e(a, x_t) = \gamma - \log P(a|x_t)$.
 
-% Thus, both $\tilde{z}(a, x_t)$ and $\tilde{e}(a, x_t)$ depend on CCP values and transition probabilities only. As a result we can efficiently estimate $V_a(x_t)$ for different values of $\theta$ from \eqref{eq:choice_specific_linear_param} using simple matrix computations. The only real computation involved is in calculating $\tilde{z}(a, x_t)$ and $\tilde{e}(a, x_t)$, both of which need to be done only once. Compare this to \cite{ziebart} where $V_a(x_t)$ needs to be calculated via expensive DP at every $\theta$ value. 
-% %These can be estimated by solving the DP problem using backwards recursion from \eqref{eq:z_tilde_ccp} and \eqref{eq:e_tilde} respectively, which is similar to Algorithm 9.1 in \cite{ziebart_phd}.
+Thus, both $\tilde{z}(a, x_t)$ and $\tilde{e}(a, x_t)$ depend on CCP values and transition probabilities only. As a result we can efficiently estimate $V_a(x_t)$ for different values of $\theta$ from \eqref{eq:choice_specific_linear_param} using simple matrix computations. The only real computation involved is in calculating $\tilde{z}(a, x_t)$ and $\tilde{e}(a, x_t)$, both of which need to be done only once. Compare this to \cite{ziebart} where $V_a(x_t)$ needs to be calculated via expensive DP at every $\theta$ value. 
+%These can be estimated by solving the DP problem using backwards recursion from \eqref{eq:z_tilde_ccp} and \eqref{eq:e_tilde} respectively, which is similar to Algorithm 9.1 in \cite{ziebart_phd}.
 
-% We will now show that the above estimation procedure can be simplified into a fixed point iteration algorithm. Let,
-% \begin{align}\label{eq:z_tilde_matrix}
-% Z(x) = \sum_{a}P(a|x)\tilde{z}(a, x)
-% \end{align}
-% this allows us to rewrite \eqref{eq:vamax} as,
-% \begin{align}\label{eq:z_tilde_from_Z}
-% \tilde{z}(a, x) = z(a, x) + \beta\sum_{x'}T(x'|a, x)Z(x')
-% \end{align}
+We will now show that the above estimation procedure can be simplified into a fixed point iteration algorithm. Let,
+\begin{align}\label{eq:z_tilde_matrix}
+Z(x) = \sum_{a}P(a|x)\tilde{z}(a, x)
+\end{align}
+this allows us to rewrite \eqref{eq:vamax} as,
+\begin{align}\label{eq:z_tilde_from_Z}
+\tilde{z}(a, x) = z(a, x) + \beta\sum_{x'}T(x'|a, x)Z(x')
+\end{align}
 
-% Multiplying the above expression with $P(a|x)$ and summing over all actions we get,
-% \begin{align}\label{eq:z_tilde_recursion}
-% \begin{split}
-% \sum_{a}P(a|x)\tilde{z}(a|x) &= \sum_{a}P(a|x) \\
-% & \times \left\{z(a, x) + \beta\sum_{x'}T(x'|a,x)Z(x') \right\}
-% \end{split}
-% \end{align}
+Multiplying the above expression with $P(a|x)$ and summing over all actions we get,
+\begin{align}\label{eq:z_tilde_recursion}
+\begin{split}
+\sum_{a}P(a|x)\tilde{z}(a|x) &= \sum_{a}P(a|x) \\
+& \times \left\{z(a, x) + \beta\sum_{x'}T(x'|a,x)Z(x') \right\}
+\end{split}
+\end{align}
 
-% The LHS above is the definition of $Z(x)$ \eqref{eq:z_tilde_matrix}. To get a closed form expression we stack up \eqref{eq:z_tilde_recursion} for all different values of $x$. For this we define, 
-% $\mathbf{P}(a)$ as the vector for CCPs $\{P(a|x), x \in X\}$, similarly $\mathbf{z}(a)$ is $\{z(a, x), x \in X\}$ and $\mathbf{T}_{x'|x}(a)$ is the transition probability matrix for each 
-% action i.e., $T(x'|a, x) \equiv \mathbf{T}_{x'|x}(a)[x', x]$.
+The LHS above is the definition of $Z(x)$ \eqref{eq:z_tilde_matrix}. To get a closed form expression we stack up \eqref{eq:z_tilde_recursion} for all different values of $x$. For this we define, 
+$\mathbf{P}(a)$ as the vector for CCPs $\{P(a|x), x \in X\}$, similarly $\mathbf{z}(a)$ is $\{z(a, x), x \in X\}$ and $\mathbf{T}_{x'|x}(a)$ is the transition probability matrix for each 
+action i.e., $T(x'|a, x) \equiv \mathbf{T}_{x'|x}(a)[x', x]$.
 
-% \begin{align}\label{eq:Z_defn}
-% \mathbf{Z} = \sum_{a}\mathbf{P}(a) \cdot \left\{ \mathbf{z}(a) + \beta \mathbf{T}_{x'|x}(a)\mathbf{Z}\right\}
-% \end{align}
+\begin{align}\label{eq:Z_defn}
+\mathbf{Z} = \sum_{a}\mathbf{P}(a) \cdot \left\{ \mathbf{z}(a) + \beta \mathbf{T}_{x'|x}(a)\mathbf{Z}\right\}
+\end{align}
 
-% We can get a closed form solution for $e(a, x)$ using the same formulation as above, which gives us,
-% \begin{align}\label{eq:E_defn}
-% \mathbf{E} = \sum_{a}\mathbf{P}(a) \cdot \left\{ \mathbf{e}(a) + \beta \mathbf{T}_{x'|x}(a)\mathbf{E}\right\}
-% \end{align}
+We can get a closed form solution for $e(a, x)$ using the same formulation as above, which gives us,
+\begin{align}\label{eq:E_defn}
+\mathbf{E} = \sum_{a}\mathbf{P}(a) \cdot \left\{ \mathbf{e}(a) + \beta \mathbf{T}_{x'|x}(a)\mathbf{E}\right\}
+\end{align}
 
-% For brevity, we combine $\mathbf{Z}$ and $\mathbf{E}$ together into $\mathbf{W} \equiv \{[\mathbf{Z}(x),  \mathbf{E}(x)], x \in X \}$. Thus we get,
-% \begin{align}\label{eq:w_recursion}
-% \mathbf{W} = \sum_{a}\mathbf{P}(a) \cdot \left\{ [\mathbf{z}(a), \mathbf{e}(a)] + \beta \mathbf{T}_{x'|x}(a)\mathbf{W}\right\}
-% \end{align}
+For brevity, we combine $\mathbf{Z}$ and $\mathbf{E}$ together into $\mathbf{W} \equiv \{[\mathbf{Z}(x),  \mathbf{E}(x)], x \in X \}$. Thus we get,
+\begin{align}\label{eq:w_recursion}
+\mathbf{W} = \sum_{a}\mathbf{P}(a) \cdot \left\{ [\mathbf{z}(a), \mathbf{e}(a)] + \beta \mathbf{T}_{x'|x}(a)\mathbf{W}\right\}
+\end{align}
 
-% In the above equation \eqref{eq:w_recursion} the only unknown is $\mathbf{W}$, which can be solved in closed form as,
+In the above equation \eqref{eq:w_recursion} the only unknown is $\mathbf{W}$, which can be solved in closed form as,
 
-% \begin{align}\label{eq:w_inversion}
-% \begin{split}
-% \mathbf{W} &= \left( \mathbf{I} - \beta \sum_{a}\mathbf{P}(a) \cdot \mathbf{T}_{x'|x}(a) \right)^{-1} \\
-% & \qquad \times \sum_{a}\mathbf{P}(a) \cdot [\mathbf{z}(a), \mathbf{e}(a)]
-% \end{split}
-% \end{align}
+\begin{align}\label{eq:w_inversion}
+\begin{split}
+\mathbf{W} &= \left( \mathbf{I} - \beta \sum_{a}\mathbf{P}(a) \cdot \mathbf{T}_{x'|x}(a) \right)^{-1} \\
+& \qquad \times \sum_{a}\mathbf{P}(a) \cdot [\mathbf{z}(a), \mathbf{e}(a)]
+\end{split}
+\end{align}
 
-% We can solve for $\mathbf{W}$ either via fixed point iteration \eqref{eq:w_recursion} or via the inversion defined in \eqref{eq:w_inversion}.
-% Given $\mathbf{W}$ we can trivially estimate $\tilde{z}$ using \eqref{eq:z_tilde_from_Z} (and similarly $\tilde{e}$).  
+We can solve for $\mathbf{W}$ either via fixed point iteration \eqref{eq:w_recursion} or via the inversion defined in \eqref{eq:w_inversion}.
+Given $\mathbf{W}$ we can trivially estimate $\tilde{z}$ using \eqref{eq:z_tilde_from_Z} (and similarly $\tilde{e}$).  
 
-% \textbf{Non-Linear Parameters:} Many recent IRL algorithms have shown that linear parameterization is insufficient to learn complex reward functions \cite{levine2011nonlinear} \cite{wulfmeier2015maximum}. Thus in this section we focus on efficiently estimating $V_a(x_t)$ based on non-linear parameterization of $r$ from known set of features.
-% Our aim here is to show how to efficiently compute $\mathbf{W}$ \eqref{eq:w_inversion}, which can then be used to efficiently estimate $\tilde{z}$ and $\tilde{e}$ and hence $V_a(x_t)$, as shown before.
+\textbf{Non-Linear Parameters:} Many recent IRL algorithms have shown that linear parameterization is insufficient to learn complex reward functions \cite{levine2011nonlinear} \cite{wulfmeier2015maximum}. Thus in this section we focus on efficiently estimating $V_a(x_t)$ based on non-linear parameterization of $r$ from known set of features.
+Our aim here is to show how to efficiently compute $\mathbf{W}$ \eqref{eq:w_inversion}, which can then be used to efficiently estimate $\tilde{z}$ and $\tilde{e}$ and hence $V_a(x_t)$, as shown before.
 
-% In the non-linear formulation, the rewards are defined as $r(a, x_t) = z(a, x_t, \theta)$ instead of $r(a, x_t) = z(a, x_t)^T\theta$. Notice that the only change is in the parameterization of $z$. Thus the choice specific value function \eqref{eq:choice_specific_linear_param} needs to be rewritten as,
-% \begin{align}\label{eq:choice_specific_non_linear_param}
-% V_a(x_t, \theta) = \tilde{z}(a, x_t, \theta) + \tilde{e}(a, x_t). 
-% \end{align}
-% Also, notice that the above change does not affect $\tilde{e}(a, x_t)$ and consequently the expression for $\mathbf{E}$ \eqref{eq:E_defn} remains unchanged. However, \eqref{eq:z_tilde_matrix} and \eqref{eq:z_tilde_from_Z} need to be rewritten to include the non-linear parameterization as,
-% \begin{align}
-% \begin{split}
-% Z(x, \theta) &= \sum_{a}P(a|x)\tilde{z}(a, x, \theta) \\
-% \tilde{z}(a, x, \theta) &= z(a, x, \theta) + \beta\sum_{x'}T(x'|a, x)Z(x', \theta)
-% \end{split}
-% \end{align}
-% %Notice, that the only difference between \eqref{eq:choice_specific_linear_param} and \eqref{eq:choice_specific_non_linear_param} is in terms of $\tilde{z}$. In the former expression it is a known set of features ($r(a, x_t) = z(a, x_t)^T\theta$) while in the latter case it is a scalar value($r(a, x_t) = z(a, x_t, \theta)$), estimated as a non-linear function of the features. 
-% %\begin{align}\label{eq:z_tilde_non_linear}
-% %\begin{split}
-% % \tilde{z}(a, x_{t}, \theta) & = r(a, x_t, \theta) + \sum_{j=1}^{T-t} \beta^{j} E_{x_{t+j}|a_t=a, x_t} \\
-% %   & \qquad \left[ \sum_{a_{t+j}} P(a_{t+j}|x_{t+j}, \theta) \tilde{z}(a_{t+j}, x_{t+j}, \theta) \right] \\
-% %\end{split}
-% %\end{align}
-
-% %Thus $\tilde{z}(a, x)$ is a scalar quantity now since $r(a, x_t, \theta)$ is scalar. Apart from the above changes the other formulations are still valid for the non-linear case as well. Thus we can rewrite \eqref{eq:w_recursion} as
-% %\begin{align}
-% %W = \sum_{a}\overbar{P}(a) \cdot \left\{ [\overbar{r}(a, \theta), \overbar{e}(a)] + \beta \overbar{T}_{x'|x}(a)W \right\}
-% %\end{align}
-% %
-% %where we emphasize that $\overbar{r}(a, \theta)$ is the vector of rewards for each state and a function of $\theta$. From this we still get,
-% Thus following the same process as before for \eqref{eq:Z_defn} we get, 
-% \begin{align}\label{eq:Z_defn_non_linear}
-% \mathbf{Z}_{\theta} = \sum_{a}\mathbf{P}(a) \cdot \left\{ \mathbf{z}(a, \theta) + \beta \mathbf{T}_{x'|x}(a)\mathbf{Z}_{\theta}\right\}
-% \end{align}
-% where we have added a subscript $\theta$ to $\mathbf{Z}$ to indicate dependence. Combining $\mathbf{Z}_{\theta}$ and $\mathbf{E}$ together into $\mathbf{W}_{\theta}$ as before, we get \eqref{eq:w_recursion} and thus finally,
-% \begin{align}\label{eq:w_inversion_non_linear}
-% \begin{split}
-% \mathbf{W}_{\theta} &= \left( \mathbf{I} - \beta \sum_{a}\mathbf{P}(a) \cdot \mathbf{T}_{x'|x}(a) \right)^{-1} \\
-% & \qquad \times \sum_{a}\mathbf{P}(a) \cdot [\mathbf{z}(a, \theta), \mathbf{e}(a)]
-% \end{split}
-% \end{align}
-
-% Notice that to estimate $\mathbf{W}_{\theta}$ using \eqref{eq:w_inversion_non_linear} we need to calculate $\mathbf{z}(a, \theta)$ at every step of the iteration. But the inverse matrix $\left( \mathbf{I} - \beta \sum_{a}\mathbf{P}(a) \cdot \mathbf{T}_{x'|x}(a) \right)^{-1}$ is independent of $\theta$ and hence can be pre-computed once for all iterations. This inverse matrix computes the state visitation frequency for each state, weighted by the appropriate discount factor and hence encompasses a large part of calculations involved in MaxEnt \cite{ziebart_phd}. 
-% Thus, similar to the linear case we can efficiently estimate $W_{\theta}$ for different values of $\theta$ by simple matrix computations.
-
-\section{Non-Parametric Estimation of the Reward Function}
-We now detail how to estimate the reward function non-parametrically once we assume that shocks are TIEV, $\beta$ is known and a normalization that one action generates a zero reward in every state. 
-We now express the CCP in terms of choice specific value function differences. Recall that the choice specific value function is given by:
+In the non-linear formulation, the rewards are defined as $r(a, x_t) = z(a, x_t, \theta)$ instead of $r(a, x_t) = z(a, x_t)^T\theta$. Notice that the only change is in the parameterization of $z$. Thus the choice specific value function \eqref{eq:choice_specific_linear_param} needs to be rewritten as,
+\begin{align}\label{eq:choice_specific_non_linear_param}
+V_a(x_t, \theta) = \tilde{z}(a, x_t, \theta) + \tilde{e}(a, x_t). 
+\end{align}
+Also, notice that the above change does not affect $\tilde{e}(a, x_t)$ and consequently the expression for $\mathbf{E}$ \eqref{eq:E_defn} remains unchanged. However, \eqref{eq:z_tilde_matrix} and \eqref{eq:z_tilde_from_Z} need to be rewritten to include the non-linear parameterization as,
 \begin{align}
 \begin{split}
-V_a(x_t) &= r_{}(x_t,a)+\beta  \cdot E_{x_{t+1}|a,x_t} \left[ \overline{V}(x_{t+1}) \right] 
+Z(x, \theta) &= \sum_{a}P(a|x)\tilde{z}(a, x, \theta) \\
+\tilde{z}(a, x, \theta) &= z(a, x, \theta) + \beta\sum_{x'}T(x'|a, x)Z(x', \theta)
 \end{split}
 \end{align}
-The CCP expressed in terms of choice specific values is then:
-\begin{align} 
-\begin{split}
-\sigma(a|x_t)&=\frac{\exp\left(r(x_t,a)+\beta E_{x_{t+1}|x_t,a} \overline{V}(x_{t+1})\right)}{\sum_{a'\in\mathcal{A}} \exp\left(r(x_t,a')+\beta E_{x_{t+1}|x_t,a'} \overline{V}(x_{t+1})\right)}\\
-&=\frac{\exp(V_a(x_t))}{\sum_{a'\in\mathcal{A}} \exp(V_{a'}(x_t))}
-\end{split}
+%Notice, that the only difference between \eqref{eq:choice_specific_linear_param} and \eqref{eq:choice_specific_non_linear_param} is in terms of $\tilde{z}$. In the former expression it is a known set of features ($r(a, x_t) = z(a, x_t)^T\theta$) while in the latter case it is a scalar value($r(a, x_t) = z(a, x_t, \theta)$), estimated as a non-linear function of the features. 
+%\begin{align}\label{eq:z_tilde_non_linear}
+%\begin{split}
+% \tilde{z}(a, x_{t}, \theta) & = r(a, x_t, \theta) + \sum_{j=1}^{T-t} \beta^{j} E_{x_{t+j}|a_t=a, x_t} \\
+%   & \qquad \left[ \sum_{a_{t+j}} P(a_{t+j}|x_{t+j}, \theta) \tilde{z}(a_{t+j}, x_{t+j}, \theta) \right] \\
+%\end{split}
+%\end{align}
+
+%Thus $\tilde{z}(a, x)$ is a scalar quantity now since $r(a, x_t, \theta)$ is scalar. Apart from the above changes the other formulations are still valid for the non-linear case as well. Thus we can rewrite \eqref{eq:w_recursion} as
+%\begin{align}
+%W = \sum_{a}\overbar{P}(a) \cdot \left\{ [\overbar{r}(a, \theta), \overbar{e}(a)] + \beta \overbar{T}_{x'|x}(a)W \right\}
+%\end{align}
+%
+%where we emphasize that $\overbar{r}(a, \theta)$ is the vector of rewards for each state and a function of $\theta$. From this we still get,
+Thus following the same process as before for \eqref{eq:Z_defn} we get, 
+\begin{align}\label{eq:Z_defn_non_linear}
+\mathbf{Z}_{\theta} = \sum_{a}\mathbf{P}(a) \cdot \left\{ \mathbf{z}(a, \theta) + \beta \mathbf{T}_{x'|x}(a)\mathbf{Z}_{\theta}\right\}
 \end{align}
-Denote the action with zero reward by $a_0$. Multiply the CCP by $\frac{\exp(-V_{a_0}(x_t))}{\exp(-V_{a_0}(x_t))}$ which leads to  
-\begin{align}
+where we have added a subscript $\theta$ to $\mathbf{Z}$ to indicate dependence. Combining $\mathbf{Z}_{\theta}$ and $\mathbf{E}$ together into $\mathbf{W}_{\theta}$ as before, we get \eqref{eq:w_recursion} and thus finally,
+\begin{align}\label{eq:w_inversion_non_linear}
 \begin{split}
-\sigma(a|x_t)&=\frac{\exp(V_a(x_t)-V_{a_0}(x_t))}{\sum_{a'} \exp(V_{a'}(x_t)-V_{a_0}(x_t))}\\
-&=\frac{\exp(\Delta_a(x_t))}{\sum_{a'} \exp(\Delta_{a'}(x_t))}
-\end{split}
-\end{align}
-where $\Delta_{a'}(x_t)=V_{a'}(x_t)-V_{a_0}(x_t)$
-It is clear from the above that choice-specific value function differences between action $a$ and some other action $a'$ are equal to:
-\begin{align}\label{eq:ccp_ratio}
-\begin{split}
-\frac{\sigma(a'|x_t)}{\sigma(a_0|x_t)}&=
-\left[
-\frac
-  {\exp(\Delta_{a'}(x_t))}
-  {\sum_{a''} \exp(\Delta_{a''}(x_t))}
-\right]
-\left[\frac{\exp(\Delta_{a_0}(x_t))}{\sum_{a''} \exp(\Delta_{a''}(x_t))}\right]^{-1}\\
-&=\exp(\Delta_{a'}(x_t))
-\end{split}
-\end{align}
-where the last equality follows from the fact that $\exp(\Delta_{a_0})=\exp(V_{a_0}(x_t)-V_{a_0}(x_t))=\exp(0)=1$.
-Now we consider the choice specific value function for the base action $a_0$. 
-\begin{align}
-\begin{split}
-V_{a_0}(x_t) &= \beta  \cdot E_{x_{t+1}|a_0,x_t} \left[ \overline{V}(x_{t+1}) \right] 
-\end{split}
-\end{align}
-Recall that:
-\begin{align} 
-\begin{split}
-\overline{V}(x_t) &=\ln\bigg[\sum_{a\in\mathcal{A}} \exp\big(r(x_t,a)
-\\&\qquad+\beta \cdot E_{x_{t+1}|a,x_t} \left[ \overline{V}(x_{t+1}) \right] \big)\bigg]  +\gamma,
-\end{split}
-\end{align}
-which we can re-write in terms of choice specific value functions as:
-\begin{align} 
-\begin{split}
-\overline{V}(x_t) &=\ln\left[\sum_{a\in\mathcal{A}} \exp\left(V_a(x_t) \right)\right]+\gamma,
-\end{split}
-\end{align}
-We can then write the above in terms of choice specific value function differences by multiplying and dividing by $\exp(V_{a_0}(x_t))$ inside of the summation
-\begin{align}
-\begin{split}
-\overline{V}(x_t) &=\ln\left[\sum_{a\in\mathcal{A}} \exp\left(V_a(x_t) \right)\right]+\gamma
-\\&=\ln\left[\sum_{a\in\mathcal{A}} \exp(V_a(x_t))\exp(-V_{a_0}(x_t))\exp(V_{a_0}(x_t))\right]+\gamma
-\\&=\ln\left[\exp(V_{a_0}(x_t))\sum_{a\in\mathcal{A}} \exp(V_a(x_t)-V_{a_0}(x_t))\right]+\gamma\\
-&=V_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(V_a(x_t)-V_{a_0}(x_t))\right]+\gamma
-\end{split}
-\end{align}
-And therefore using the ratio of CCPs in 
-\begin{align} 
-\begin{split}
-\overline{V}(x_t) &=V_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(V_a(x_t)-V_{a_0}(x_t))\right]+\gamma\\
-&=V_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(V_a(x_t)-V_{a_0}(x_t))\right]+\gamma\\
-\end{split}
-\end{align}
-Using the CCP ratio from (\ref{eq:ccp_ratio}), the above can be expressed as:
-\begin{align} 
-\begin{split}
-\overline{V}(x_t) &=V_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(V_a(x_t)-V_{a_0}(x_t))\right]+\gamma\\
-&=V_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \frac{\sigma(a|x_t)}{\sigma(a_0|x_t)}\right]+\gamma\\
-&=V_{a_0}(x_t)+\ln\left[1+\sum_{a\in\mathcal{A}\setminus a_0} \frac{\sigma(a|x_t)}{\sigma(a_0|x_t)}\right]+\gamma
-\end{split}
-\end{align}
-the value function for the base action $a_0$ can then be expressed as:
-\begin{align}
-\begin{split}
-V_{a_0}(x_t)&=
- \beta E_{x_{t+1}|x_t,a_0}
-\Bigg[V_{a_0}(x_{t+1}) \\
-&\left. +\ln\left[1+ \sum_{a'\in\mathcal{A}\setminus a_0}\frac{\sigma(a'|x_{t+1})}{\sigma(a_0|x_{t+1})}\right]+\gamma\right]
-\end{split}
-\end{align}
-The only unknown in the above is $V_{a_0}$ which can be solved for using fixed point iteration or matrix inversion. The value function for every state can then be estimated as:
-\begin{eqnarray}
-V_a(x_t)=\ln(\sigma(a|x_t))-\ln(\sigma(a_0|x_t))+V_{a_0}(x_t).\label{eq:v_backout}
-\end{eqnarray}
-It is then possible to estimate the reward function directly:
-\begin{align}
-\begin{split}
-r(a,x_t)
-&=V_a(x_t)- \beta E_{x_{t+1}|x_t,a}\Bigg\{
-V_{a_0}(x_{t+1})
-\\ &\left.\qquad +
-\ln
-  \left(
-    1 + \sum_{a'\in\mathcal{A}\setminus a_0}\frac{\sigma(a|x_{t+1})}{\sigma(a_0|x_{t+1})}
-  \right)
-\right\}.
+\mathbf{W}_{\theta} &= \left( \mathbf{I} - \beta \sum_{a}\mathbf{P}(a) \cdot \mathbf{T}_{x'|x}(a) \right)^{-1} \\
+& \qquad \times \sum_{a}\mathbf{P}(a) \cdot [\mathbf{z}(a, \theta), \mathbf{e}(a)]
 \end{split}
 \end{align}
 
-% \newpage
-% \begin{align} \label{eq:ccps}
-% \begin{split}
-% \sigma(a|x_t)=\frac{\exp\left(r(x_t,a)+\beta E_{x_{t+1}|x_t,a} \overline{V}(x_{t+1})\right)}{\sum_{a'\in\mathcal{A}} \exp\left(r(x_t,a')+\beta E_{x_{t+1}|x_t,a'} \overline{V}(x_{t+1})\right)}
-% \end{split}
-% \end{align}
+Notice that to estimate $\mathbf{W}_{\theta}$ using \eqref{eq:w_inversion_non_linear} we need to calculate $\mathbf{z}(a, \theta)$ at every step of the iteration. But the inverse matrix $\left( \mathbf{I} - \beta \sum_{a}\mathbf{P}(a) \cdot \mathbf{T}_{x'|x}(a) \right)^{-1}$ is independent of $\theta$ and hence can be pre-computed once for all iterations. This inverse matrix computes the state visitation frequency for each state, weighted by the appropriate discount factor and hence encompasses a large part of calculations involved in MaxEnt \cite{ziebart_phd}. 
+Thus, similar to the linear case we can efficiently estimate $W_{\theta}$ for different values of $\theta$ by simple matrix computations.
 
-% \begin{align} \label{eq:exante_inversion}
-% \begin{split}
-% \overline{\mathbf{V}} &=\left[I-\sum_{a}(\mathbf{S}(a) \lambda) *\left[ \beta \mathbf{T}(a)  \right]\right]^{-1} \\
-% & \qquad \times \left[\sum_{a}\mathbf{S}(a) *\left[ \mathbf{R}_{\theta}(a)+\tilde{\bm{\epsilon}}(a)\right]\right]
-% \end{split}
-% \end{align}
-
-% Same as:
-% \begin{align} \label{eq:exante_inversion}
-% \begin{split}
-% \overline{\mathbf{V}} &=\left[I-\sum_{a}(\mathbf{S}(a) \lambda) *\left[ \beta \mathbf{T}(a)  \right]\right]^{-1} \\
-% & \qquad \times\sum_{a}\mathbf{S}(a) *\left[ \mathbf{R}_{\theta}(a)\right]+\left[I-\sum_{a}(\mathbf{S}(a) \lambda) *\left[ \beta \mathbf{T}(a)  \right]\right]^{-1}\left[\sum_{a}\mathbf{S}(a) *\tilde{\bm{\epsilon}}(a)\right]
-% \end{split}
-% \end{align}
-
-% \begin{align} \label{eq:ccps}
-% \begin{split}
-% \ln\sigma(a|x_t)-\ln \sigma(a'|x_t)=\left(r(x_t,a)+\beta E_{x_{t+1}|x_t,a} \overline{V}(x_{t+1})\right)-\left(r(x_t,a')+\beta E_{x_{t+1}|x_t,a'} \overline{V}(x_{t+1})\right)
-% \end{split}
-% \end{align}
 \end{document}
