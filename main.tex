@@ -447,70 +447,57 @@ Defining $A \equiv \left(I- \beta \sum_{a}(\mathbf{S}(a) \lambda) *\left[ \mathb
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+    
 
 \section{Experiments}
 
-In this section we empirically validate,
-(1) the computational efficiency of CCP-IRL and (2) the underlying assumptions of consistent CCP estimates \emph{i.e.,} we show the data requirement for CCP-IRL.
-To this end we evaluate the performance of CCP-IRL on standard IRL tasks. Since, as shown above, CCP-IRL is most closely related to MaxEnt-IRL, we use it as a baseline method to compare our results on the benchmark tasks. Previously, both linear \cite{ziebart2010modeling} and non-linear \cite{wulfmeier2015maximum} formulations of MaxEnt-IRL have been used to estimate the reward functions. Hence, we discuss results for both formulations of CCP-IRL. For the former, we focus on problems of navigation in a traditional Gridworld setting with stochastic dynamics, while for the latter we choose the Objectworld task as described in \cite{Levine2013}.
+In this section we empirically validate, (1) the computational efficiency of CCP-IRL and (2) the underlying assumptions of consistent CCP estimates \emph{i.e.,} we show the data requirement for CCP-IRL.
+We show results for both linear and non-linear reward settings since both of these have been used previously in IRL \cite{ziebart2010modeling, wulfmeier2015maximum}. For the former, we use a car driving simulator, similar to previous works \cite{abbeel2004apprenticeship, klein2012inverse}, while for the latter we choose the Objectworld task as described in \cite{Levine2013}.
+Since, as shown above, CCP-IRL is closely related to MaxEnt-IRL, we use it as a baseline method to compare our results. 
+Another method which uses expert policy estimates to solve IRL is, Structured Classification IRL (SCIRL) \cite{klein2012inverse}. However, SCIRL uses these estimates in a max-margin framework, which is fundamentally different from the maximum entropy approach followed in CCP-IRL and MaxEnt-IRL. Additionally, SCIRL is further limited to \textit{linear reward} formulations only. Despite these differences, we compare our results with SCIRL to show the generalizability of CCP-IRL.
 
-For comparative analysis, we use both qualitative and quantitative results.
-For qualitative analysis, we directly compare the visualizations of the inferred reward functions for both CCP-IRL and MaxEnt-IRL.
-For quantitative comparison, we use negative log likelihood (NLL) \cite{kitani2012activity} and expected value difference (EVD) \cite{levine2011nonlinear} as the evaluation criterion. NLL is a probabilistic comparison metric and evaluates the likelihood of a path under the predicted policy. For a policy ($\pi$), NLL is defined as,
+For comparative analysis, we use negative log likelihood (NLL) \cite{kitani2012activity} and expected value difference (EVD) \cite{levine2011nonlinear} as the evaluation criterion. NLL is a probabilistic comparison metric and evaluates the likelihood of a path under the predicted policy. For a policy ($\pi$), NLL is defined as,
 \begin{align}
 NLL(\pi) = E_{\pi(a|s)}\big[-\log \prod_{t} \pi(a_{t}|s_{t}) \big]
 \end{align}
 % Unfortunately, NLL cannot capture the underlying stochastic nature of the expert policy since it assumes deterministic transitions in expert trajectories.
 As another metric of success, similar to related works \cite{Levine2013, wulfmeier2015maximum}, we use expected value difference (EVD). EVD measures the difference between the optimal and learned policy by comparing the value function obtained with each policy under the \textit{true reward} distribution.
-Further, to verify the computational improvement using CCP-IRL, we observe the time taken by each algorithm as well as the number of iterations it takes for each algorithm to converge. We show that our algorithm is able to achieve similar qualitative and quantitative performance with \textit{much less} computational time.
+To verify the computational improvement using CCP-IRL, we observe the CPU time taken by each algorithm as well as the number of iterations it takes for each algorithm to converge. We show that our algorithm is able to achieve similar qualitative and quantitative performance with \textit{much less} computational time.
 %For computational analysis all experiments were run on a PC with an Intel Xeon CPU E5-2660 v3 2.60 GHz (10 cores) processor with an NVIDIA TITAN X (Pascal) GPU.
-
 
 \subsection{Gridworld: Evaluating Linear Rewards} 
 
-To show the computational efficiency of CCP-IRL for linear parameterizations we focus on the standard gridworld experiments, since it is easy to formulate linear reward function in this setting. We empirically validate the computational efficiency of CCP-IRL. We also discuss how CCP-IRL requires consistent CCP estimates, which in turn depend on the amount of expert demonstrations available. For this, we plot the performance of our algorithms against the amount of expert trajectories. 
+We illustrate the computational efficiency of CCP-IRL for linear parameterizations using a car driving simulator.
+As noted above, we validate the computational efficiency of CCP-IRL, and also discuss how CCP-IRL requires consistent CCP estimates, which in turn depend on the amount of expert demonstrations available. For this, we plot the performance of our algorithms against the amount of expert trajectories.
+
 \begin{table}[t]
 \centering
 \def\arraystretch{1.0}% 
 \begin{tabular}{|c|c|c|c|c|c|}
 \hline
-N & Cell Size & MaxEnt (sec) & CCP (sec) & Speedup \\\hline
-
-32 & 4 & 584.30 & \textbf{283.81} & $\mathbf{2}\times$ \\
-32 & 8 & 635.63 & \textbf{266.18} & $\mathbf{3}\times$ \\
-64 & 8 & 3224.97 & \textbf{1024.42} & $\mathbf{3}\times$ \\
-128 & 16 & 18824.17 & \textbf{5312.52} & $\mathbf{3}\times$ \\
-256 & 32 & 68669.74 & \textbf{23299.00} & $\mathbf{3}\times$ \\
+|S| & MaxEnt (sec) & CCP (sec) & SCIRL & Speedup \\\hline
+$10^3$ & 4809.82 & 457.17  & \textbf{28.45} & $\mathbf{10}\times$ \\
+$10^4$ & 4809.82 & 457.17 & \textbf{172.15} & $\mathbf{10}\times$ \\
+$10^5$ & 27745.74 & 2835.38 & \textbf{485.59} & $\mathbf{10}\times$ \\
+$10^6$ & 197399.03 & 16982.17 & \textbf{2512.52} & $\mathbf{12}\times$ \\
 \hline
 \end{tabular}
-\caption{\textbf{Computation time} (averaged over multiple runs) comparison between MaxEnt and CCP for gridworld settings. Each experiment was run for 50 iterations.}
+\caption{\textbf{Computation time} (averaged over multiple runs) comparison between different IRL algorithms for Highway MDP settings. Each experiment was run for same number of iterations.
+}
 \label{table:table_results_macro_cells}
 \end{table}
 
-
-
-\begin{figure}[t]
-\centering
-  \begin{tabular}{cc}
-    \MSHangBox{\includegraphics[width=0.22\textwidth]{images/gridworld/macro_cells/grid_16_macro_2_lr_05/ll_ccp_vs_maxent_per_traj.pdf}}&
-    \MSHangBox{\includegraphics[width=0.22\textwidth]{images/gridworld/macro_cells/grid_16_macro_2_lr_05/evd_multiple_tries.pdf}}
-    \end{tabular}
-    \caption{Results for gridworld of size 16 with macro-cells of size 2. Left: Minimum NLL results with varying number of trajectories. Right: Expected Value Difference results. For few trajectories CCP-IRL shows much larger variance as compared to MaxEnt-IRL.}
-    \label{fig:img_maxent_vs_ccp_gridworld_macro_cell}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-  \begin{tabular}{ccc}
-    \MSHangBox{\includegraphics[width=0.13\textwidth]{images/gridworld/macro_cells/grid_8_macro_2/reward_map/true_reward_trim.pdf}}&
-    \MSHangBox{\includegraphics[width=0.13\textwidth]{images/gridworld/macro_cells/grid_8_macro_2/reward_map/maxent_reward_trim.pdf}}&
-    \MSHangBox{\includegraphics[width=0.13\textwidth]{images/gridworld/macro_cells/grid_8_macro_2/reward_map/ccp_reward_2_trim.pdf}} \\
-    True Reward & MaxEnt & CCP \\
-    \end{tabular}
-    \caption{ Reward distribution for macro cells with gridsize 8 and macro cell size 2 using 10 trajectories. Dark - high reward, Light - low reward. }
-    \label{fig:img_reward_map_gridworld_macro_cell}
-\end{figure}
+% \begin{figure}[t]
+% \centering
+%   \begin{tabular}{ccc}
+%     \MSHangBox{\includegraphics[width=0.13\textwidth]{images/gridworld/macro_cells/grid_8_macro_2/reward_map/true_reward_trim.pdf}}&
+%     \MSHangBox{\includegraphics[width=0.13\textwidth]{images/gridworld/macro_cells/grid_8_macro_2/reward_map/maxent_reward_trim.pdf}}&
+%     \MSHangBox{\includegraphics[width=0.13\textwidth]{images/gridworld/macro_cells/grid_8_macro_2/reward_map/ccp_reward_2_trim.pdf}} \\
+%     True Reward & MaxEnt & CCP \\
+%     \end{tabular}
+%     \caption{ Reward distribution for macro cells with gridsize 8 and macro cell size 2 using 10 trajectories. Dark - high reward, Light - low reward. }
+%     \label{fig:img_reward_map_gridworld_macro_cell}
+% \end{figure}
 
 % \begin{figure}[t]
 % \centering
@@ -521,37 +508,35 @@ N & Cell Size & MaxEnt (sec) & CCP (sec) & Speedup \\\hline
 %     \label{fig:img_gridworld_maxent_vs_ccp_time_discount}
 % \end{figure}
 
-We use the macro-cell GridWorld environment \cite{abbeel2004apprenticeship} in our experiment. This is a slightly more complex form of the standard gridworld navigation problem and provides a good basis to compare the two algorithms. 
-In this setting, the $N \times N$ grid is divided into non-overlapping square regions (macro-cells). Each region contains multiple grid cells and each cell in a region shares the same reward. Similar to \cite{abbeel2004apprenticeship}, for every region we select a positive reward $r \in (0, 1)$ with probability of $0.1$ and $r = 0$ with probability $0.9$. This reward distribution leads to positive rewards in few macro cells which results in interesting policies to be learned and hence requires more precise CCP estimates to match expert behavior.
+Similar to previous works, we use a car driving simulator in a linear reward setting. The goal in this environment is to drive on a busy multi-lane highway without crashing. The agent's car can either move left or right, accelerate, decelerate or keep a constant speed. We use a hand tuned reward, which penalizes off-road driving and collisions while favoring high speed. 
 
-Since all the cells in the same region share the same reward, our feature representation is a one-hot encoding of the region that cell belongs to \emph{e.g.}, in a grid world of size $N=64$ and macro cell of size 8 we have 64 regions and thus each state vector is of size 64. Further, we assume a stochastic wind with probability $0.3$ and the agent can move only in four directions. 
+For our reward feature vector, we use a discretization of the state space. In the simplest case, similar to, Klein \emph{et al.} \yrcite{klein2012inverse}, we parameterize the state space using 9 horizontal positions for the user's car, 3 horizontal and 9 vertical positions for the closest traffic's car and 3 speeds. This gives us a feature vector of size $\mathcal{R}^{729}$. To scale this representation to larger MDPs we increase each of the above parameterizations such as, car speed, number of lanes \emph{etc.} to large values. However, a one-hot representation such as used in Klein \emph{et al.} does not scale to large MDPs. Hence for large MDPs, we group adjacent lanes and closest traffic car's position together to keep the feature vector representation compact.
 
-First, we analyze the performance of both algorithms given different amounts of expert trajectories.
+\begin{figure}[t]
+\centering
+  \begin{tabular}{cc}
+    \MSHangBox{\includegraphics[width=0.22\textwidth]{images/highway/medium_mdp/test_nll.pdf}}&
+    \MSHangBox{\includegraphics[width=0.22\textwidth]{images/highway/medium_mdp/test_evd.pdf}}
+    \end{tabular}
+    \caption{Results for Highway MDP with 5,000 states. Left: Minimum NLL results with varying number of trajectories. Right: Expected Value Difference results. As seen the sample complexity of CCP-IRL is very close to SCIRL and not much worse than MaxEnt-IRL.}
+    \label{fig:img_maxent_vs_ccp_gridworld_macro_cell}
+\end{figure}
+
+First, we analyze the performance of CCP-IRL given different amounts of expert trajectories.
 Figure \ref{fig:img_maxent_vs_ccp_gridworld_macro_cell} compares the NLL and EVD results against increasing number of expert trajectories.
-As seen above, both algorithms show poor performance given very few trajectories (< 20 trajectories).
-However, with moderate number of trajectories MaxEnt-IRL approaches expert behavior while CCP-IRL is still comparatively worse.
-Finally, with sufficiently large number of trajectories (> 60) both algorithms converge to expert behavior. 
-CCP-IRL's poor performance with few expert demonstrations reflect its dependence on sufficient amount of input data.
-Since CCP estimates are calculated from input data CCP-IRL needs a sufficient (relatively larger than MaxEnt-IRL) amount of trajectories to get consistent CCP estimates.
-% This is expected given that we need sufficient amount of trajectories to get consistent CCP estimates. 
-% This requirement for more input trajectories can be solved for robotic tasks with autonomous data aquisition.
+As seen above, all algorithms show poor performance given very few trajectories (< 20 trajectories).
+However, with moderate number of trajectories ($\sim$30) all algorithms approach expert behavior, although, CCP-IRL requires slightly more number of trajectories. The impressive performance of CCP-IRL and SCIRL reflect that exploiting the MDP structure with expert trajectories can help avoiding the MDP problem repeatedly.
 
-% These results show that CCP-IRL's performance on the input trajectories to get consistent CCP estimates.  since consistent CCP estimates require sufficient input trajectories 
-%of CCPs which in turn are directly inferred from the data.
-%which requires a sufficient number of trajectories to arrive at consistent estimates.
-%Many robotic tasks use simulations or autonomous techniques to gather data, in which case the requirement for large number of trajectories can be easily satisfied. 
+We also verify the computational advantage for CCP-IRL across large state spaces ($|S| \in \{10^3, 10^6\}$) in Table~\ref{table:table_results_macro_cells}. CCP-IRL is almost 10$\times$ faster than MaxEnt-IRL, across both large and small state spaces. This gives a huge advantage when running on large spaces since MaxEnt-IRL is prohibitively expensive in such settings. However, SCIRL is much faster than both CCP-IRL and MaxEnt-IRL. This is because rather than solving a complex maximum entropy problem, SCIRL solves a multi-class classification problem using the max-margin approach. Although, SCIRL is able to infer the appropriate reward in our setting, such structured margin classifiers suffer from other drawbacks as discussed in \cite{ziebart2010modeling}. Additionally, as we show below, SCIRL works for linear reward parameterization only, which greatly reduces its applicability in complex scenarios.
 
-A qualitative comparison of the rewards inferred by both algorithms, given few trajectories, is shown in Figure \ref{fig:img_reward_map_gridworld_macro_cell}.
-Notice that the darker regions in the true reward are similarly darker for both algorithms. Thus, both algorithms are able to infer the general reward distribution. However, MaxEnt-IRL is able to match the true reward distribution at a much finer level (since less discrepancy compared to the true reward) and hence the underlying policy more closely as compared to CCP-IRL.
-% inferred reward function is worse as compared to MaxEnt-IRL.
+\subsection{Objectworld: Evaluating Non-Linear Rewards}
 
-%Finally we compare the computation cost for both algorithms across large state spaces ($|S| \in \{10^3, 10^4\}$) in Table \ref{table:table_results_macro_cells}.
-%As before, CCP-IRL is almost 2x as fast as MaxEnt-IRL across state spaces. Additionally, for the last two rows the only difference in the experiments is in terms of the feature size, since we get similar performance improvement for both settings this indicates that the speedup in CCP-IRL is independent of the dimension of $z(a, x_t)$. This is important since in CCP-IRL the backwards recursion happens on the $z(a, x_t)$ vector while in MaxEnt-IRL it happens on the scalar reward which might give an impression of the former being much more computationally expensive.
+We now look at CCP-IRL's performance when the true reward function is a non-linear parameterization of the feature vector.
+For this, we use the Objectworld \cite{levine2011nonlinear} environment since the reward function is a non-linear function of state features.
+Similar to related work \cite{wulfmeier2015maximum}, we use a Deep Neural Network (DNN) as the non-linear function approximator.
+As before, we verify both (1) the computational advantage provided by CCP-IRL (DeepCCP-IRL) and (2) the data requirement for CCP-IRL in the above scenario.
 
-Finally, we verify the computational advantage for CCP-IRL across large state spaces ($|S| \in \{10^3, 10^6\}$) in Table~\ref{table:table_results_macro_cells}. CCP-IRL is almost 3$\times$ faster than MaxEnt-IRL, across both large and small state spaces. Notice that this gives a huge advantage when running on large spaces since MaxEnt-IRL can be prohibitively expensive in such settings.
-%than MaxEnt-IRL across different sized state spaces.
-
-% Additionally, we also observe the affect of feature dimension on computation complexity. Notice the last two rows of Table \ref{table:table_results_macro_cells} have same state space but different feature sizes. Given these differences we still get similar (~2x) performance improvement for CCP-IRL which indicates that this speedup is largely independent of the dimension of $z(a, x_t)$ \eqref{eq:choice_specific_linear_param}. This is important since in CCP-IRL the backwards recursion happens on the $z(a, x_t)$ vector while in MaxEnt-IRL it happens on the scalar reward which might give an impression of the former being much more computationally expensive.
+The Objectworld environment consists of a grid of $N \times N$ states. At each state the agent can take 5 actions, including movement in 4 directions and staying in place. Spread through the grid are random objects, each with an inner and outer color. Each of these colors is chosen from a set of $C$ colors. The reward for each cell(state) is positive if the cell is within distance 3 of color 1 and distance 2 of color 2, negative if only within distance 3 of color 1 and zero in all other cases. For our feature vector we use a continuous set of values $x \in \mathbb{R}^{2C}$, where $x_i$ and $x_{i+1}$ is the shortest distance from the state to the \emph{i'th} inner and outer color respectively. Since the reward is only dependent on two colors, features for other colors act as distractors. 
 
 \begin{table}[t]
 \centering
@@ -560,9 +545,9 @@ Finally, we verify the computational advantage for CCP-IRL across large state sp
 \hline
 Experiment Setting & MaxEnt & CCP & Speedup \\\hline
 
-Grid size: 16, C = 2 & 1622.63 & \textbf{296.43} & $\mathbf{5}\times$ \\
+%Grid size: 16, C = 2 & 1622.63 & \textbf{296.43} & $\mathbf{5}\times$ \\
 Grid size: 32, C = 2 & 9115.50 & \textbf{1580.22} & $\mathbf{6}\times$ \\
-Grid size: 16, C = 8 & 2535.38  & \textbf{545.95} & $\mathbf{5}\times$ \\
+%Grid size: 16, C = 8 & 2535.38  & \textbf{545.95} & $\mathbf{5}\times$ \\
 Grid size: 32, C = 8 & 19445.66 & \textbf{4799.02} & $\mathbf{4}\times$ \\
 Grid size: 64, C = 4 & 27661.66 & \textbf{5634.14} & $\mathbf{5}\times$ \\
 Grid size: 128, C = 4 & 237278.48 & \textbf{47886.87} & $\mathbf{5}\times$ \\
@@ -603,16 +588,6 @@ Grid size: 128, C = 4 & 237278.48 & \textbf{47886.87} & $\mathbf{5}\times$ \\
     \caption{ Reward distribution for Objectworld with gridsize 8 using 30 trajectories and 5 colors. Dark - low reward, Light - high reward. We also plot the inner and outer color of each object. \textit{Pink} - color 1 \textit{Orange} - color 2, other colors are distractors. \textit{Figure best viewed in electronic version.} }
     \label{fig:img_reward_map_objectworld}
 \end{figure}
-
-\subsection{Objectworld: Evaluating Non-Linear Rewards}
-
-We now look at CCP-IRL's performance when the true reward function is a non-linear parameterization of the feature vector.
-For this, we use the Objectworld \cite{levine2011nonlinear} environment since the reward function is a non-linear function of state features.
-Similar to related work \cite{wulfmeier2015maximum}, we use a Deep Neural Network (DNN) as the non-linear function approximator.
-% Similar to previous works \cite{wulfmeier2015maximum} we use a Deep Neural Network as the non-linear function approximator for the reward function.
-As before, we verify both (1) the computational advantage provided by CCP-IRL (DeepCCP-IRL) and (2) the data requirement for CCP-IRL in the above scenario.
-
-The Objectworld environment consists of a grid of $N \times N$ states. At each state the agent can take 5 actions, including movement in 4 directions and staying in place. Spread through the grid are random objects, each with an inner and outer color. Each of these colors is chosen from a set of $C$ colors. The reward for each cell(state) is positive if the cell is within distance 3 of color 1 and distance 2 of color 2, negative if only within distance 3 of color 1 and zero in all other cases. For our feature vector we use a continuous set of values $x \in \mathbb{R}^{2C}$, where $x_i$ and $x_{i+1}$ is the shortest distance from the state to the \emph{i'th} inner and outer color respectively. Since the reward is only dependent on two colors, features for other colors act as distractors. 
 
 We use DeepMaxEnt-IRL \cite{wulfmeier2015maximum} as the baseline, using similar deep neural network architecture for both algorithms. Precisely, we use a 2-layer feed-forward network with rectified linear units. We use the Adam \cite{kingma2014adam} optimizer with the initial learning rate set to $10^{-3}$.
 
