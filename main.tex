@@ -442,13 +442,9 @@ In contrast, the main computation in MaxEnt-IRL is solving the same MDP problem 
 Thus, assuming a total of $N$ iterations till convergence and $T$ iterations for each backwards recursion; MaxEnt-IRL takes a total of $O(N\times T \times|A|\times|S|)$ \cite{ziebart_phd}. For CCP-IRL assuming the matrix inversion can be performed with state of the art matrix inversion method, we get a corresponding runtime of $O(|S|^{2.4}+T\times|A|\times|S|)$ for the general case and $O(T\times|A|\times|S|)$ for the linear reward formulation.
 
 We also look at how for large state spaces, we can avoid using matrix inversion and rather estimate the inverse matrix \eqref{eq:exante_inversion} using successive approximations.
-Defining $A \equiv \left(I- \beta \sum_{a}(\mathbf{S}(a) \lambda) *\left[ \mathbf{T}(a)  \right]\right)^{-1}$ we can write it as $A = (I - \beta F)^{-1}$ where $F$ is used as a shorthand for notational convenience. Premultiplying both sides with $(I - \beta F)$ we get $(I - \beta F)\times A = I$ which finally gives us $A = I + \beta F A$. We can now use this last equation to estimate the inverse matrix $A$ by successive approximations. Although, from a computational perspective sometimes estimating the inverse matrix can be fast itself, Zeibart \yrcite{ziebart_phd} discusses some of these considerations. 
-
+Defining $A \equiv \left(I- \beta \sum_{a}(\mathbf{S}(a) \lambda) *\left[ \mathbf{T}(a)  \right]\right)^{-1}$ we can write it as $A = (I - \beta F)^{-1}$ where $F$ is used as a shorthand for notational convenience. Premultiplying both sides with $(I - \beta F)$ we get $(I - \beta F)\times A = I$ which finally gives us $A = I + \beta F A$. We can now use this last equation to estimate the inverse matrix $A$ by successive approximations. Although, from a computational perspective sometimes estimating the inverse matrix can be fast itself, Zeibart \yrcite{ziebart_phd} discusses some of these considerations.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    
-
 \section{Experiments}
 
 In this section we empirically validate, (1) the computational efficiency of CCP-IRL and (2) the underlying assumptions of consistent CCP estimates \emph{i.e.,} we show the data requirement for CCP-IRL.
@@ -482,7 +478,7 @@ $10^5$ & 27745.74 & 2835.38 & \textbf{485.59} & $\mathbf{10}\times$ \\
 $10^6$ & 197399.03 & 16982.17 & \textbf{2512.52} & $\mathbf{12}\times$ \\
 \hline
 \end{tabular}
-\caption{\textbf{Computation time} (averaged over multiple runs) comparison between different IRL algorithms for Highway MDP settings. Each experiment was run for same number of iterations.
+\caption{\textbf{Computation time} (averaged over multiple runs) comparison between different IRL algorithms for Highway MDP settings. Each experiment was run for same number of iterations. \textit{Speedup} is calculated between MaxEnt and CCP. 
 }
 \label{table:table_results_macro_cells}
 \end{table}
@@ -549,8 +545,8 @@ Experiment Setting & MaxEnt & CCP & Speedup \\\hline
 Grid size: 32, C = 2 & 9115.50 & \textbf{1580.22} & $\mathbf{6}\times$ \\
 %Grid size: 16, C = 8 & 2535.38  & \textbf{545.95} & $\mathbf{5}\times$ \\
 Grid size: 32, C = 8 & 19445.66 & \textbf{4799.02} & $\mathbf{4}\times$ \\
-Grid size: 64, C = 4 & 27661.66 & \textbf{5634.14} & $\mathbf{5}\times$ \\
-Grid size: 128, C = 4 & 237278.48 & \textbf{47886.87} & $\mathbf{5}\times$ \\
+Grid size: 64, C = 4 & 27661.66 & \textbf{4634.14} & $\mathbf{6}\times$ \\
+Grid size: 128, C = 4 & 237278.48 & \textbf{27886.87} & $\mathbf{8}\times$ \\
 \hline
 \end{tabular}
 \caption{Computation time (in seconds and averaged over multiple runs) comparison between MaxEnt and CCP for Objectworld. Each experiment was run for the same number of iterations with similar settings. }
@@ -560,20 +556,20 @@ Grid size: 128, C = 4 & 237278.48 & \textbf{47886.87} & $\mathbf{5}\times$ \\
 \begin{figure}[t]
 \centering
   \begin{tabular}{cc}
-    \MSHangBox{\includegraphics[width=0.23\textwidth]{images/objectworld/grid_16_object_8/test_ll.pdf}}
-    \MSHangBox{\includegraphics[width=0.23\textwidth]{images/objectworld/grid_16_object_8/evd_maxent_vs_ccp.pdf}}
+    \MSHangBox{\includegraphics[width=0.23\textwidth]{images/objectworld/grid_32_obj_30_algo_3/test_nll_algo_3.pdf}}
+    \MSHangBox{\includegraphics[width=0.23\textwidth]{images/objectworld/grid_32_obj_30_algo_3/test_evd_algo_3.pdf}}
   \end{tabular}
-    \caption{Results on ObjectWorld with gridsize of 16 and 2 colors. Left: NLL results on test trajectories. Right: Expected Value Difference results. }
+    \caption{Results on ObjectWorld with gridsize of 32 and 2 colors. Left: NLL results on test trajectories. Right: Expected Value Difference results. }
     \label{fig:img_objectworld_maxent_vs_ccp_lr_01}
 \end{figure}
 
 \begin{figure}[t]
 \centering
   \begin{tabular}{cc}
-    \MSHangBox{\includegraphics[width=0.22\textwidth]{images/objectworld/transfer/ccp_no_var_maxent_no_var.pdf}}
-    \MSHangBox{\includegraphics[width=0.24\textwidth]{images/objectworld/timeit_maxent_vs_ccp_grid_16_per_iter.pdf}}
+    \MSHangBox{\includegraphics[width=0.23\textwidth]{images/objectworld/timeit_maxent_vs_ccp_grid_32_discount_value.pdf}}
+    \MSHangBox{\includegraphics[width=0.23\textwidth]{images/objectworld/timeit_maxent_vs_ccp_grid_16_per_iter.pdf}}
   \end{tabular}
-    \caption{Left: Results for transfer experiment using MaxEnt and CCP formulation on Objectworld with gridsize of 16 and 2 colors. Right: Time variance between MaxEnt-IRL and CCP-IRL with increasing number of iterations. As expected CCP-IRL shows little computation increase with larger number of iterations.}
+    \caption{Left: Time variance between MaxEnt-IRL and CCP-IRL with increasing discount values. Right: Time variance between MaxEnt-IRL and CCP-IRL with increasing number of iterations. As expected CCP-IRL shows little computation increase with more complex MDPs.}
     \label{fig:img_objectworld_maxent_vs_ccp_time_results}
 \end{figure}
 
@@ -589,27 +585,15 @@ Grid size: 128, C = 4 & 237278.48 & \textbf{47886.87} & $\mathbf{5}\times$ \\
     \label{fig:img_reward_map_objectworld}
 \end{figure}
 
-We use DeepMaxEnt-IRL \cite{wulfmeier2015maximum} as the baseline, using similar deep neural network architecture for both algorithms. Precisely, we use a 2-layer feed-forward network with rectified linear units. We use the Adam \cite{kingma2014adam} optimizer with the initial learning rate set to $10^{-3}$.
+As before, we use DeepMaxEnt-IRL \cite{wulfmeier2015maximum} as one of the baselines, using similar deep neural network architecture for both algorithms. Precisely, we use a 2-layer feed-forward network with rectified linear units. We use the Adam \cite{kingma2014adam} optimizer with the initial learning rate set to $10^{-3}$. Since, SCIRL only works with linear parameterization we expand the reward features to include polynomial basis as well. We would like to note that although such an approach can be used to approximate non-linear rewards, it requires significant hand-tuning and is not generalizable to be more complex reward scenarios. 
 
-We quantitatively analyze the performance of our proposed DeepCCP-IRL algorithm. 
-Figure \ref{fig:img_objectworld_maxent_vs_ccp_lr_01} compares the NLL and EVD results for both algorithms. Notice that as observed before, with few expert trajectories both algorithms perform poorly. However, DeepMaxEnt-IRL matches expert performance with moderate number of trajectories ($\approx 20$), while DeepCCP-IRL requires relatively large number of trajectories ($\approx 40$).
-This is expected since CCP-IRL requires larger number of expert trajectories to get consistent CCP estimates.
+We quantitatively analyze the performance of our proposed DeepCCP-IRL algorithm.
+Figure \ref{fig:img_objectworld_maxent_vs_ccp_lr_01} compares the NLL and EVD results. Notice that as observed before, with few expert trajectories all algorithms perform poorly. However, both DeepMaxEnt-IRL and DeepCCP-IRL match expert performance with moderate number of trajectories ($\approx 20$). Although, comparatively CCP-IRL requires few more trajectories as compared to MaxEnt-IRL.
+This is expected since CCP-IRL requires larger number of expert trajectories to get consistent CCP estimates on average. In contrast, SCIRL approach fails to learn the appropriate parameters in this setting. Although, we would like to note that given more expressive non-linear features a linear parameterization could suffice for this simple problem, it is not clear how SCIRL can be generally extended to non-linear reward parameters.
 
-Also, we qualitatively look at the inferred reward to verify how well the DNN is able to approximate the non-linear reward. Figure \ref{fig:img_reward_map_objectworld} plots the inferred rewards against the true reward function. Notice that both algorithms capture the non-linearities in the underlying reward function and consequently match the expert behavior. Thus, a deep neural network suffices as a non-linear function approximator for CCP-IRL. 
+% Also, we qualitatively look at the inferred reward to verify how well the DNN is able to approximate the non-linear reward. Figure \ref{fig:img_reward_map_objectworld} plots the inferred rewards against the true reward function. Notice that both algorithms capture the non-linearities in the underlying reward function and consequently match the expert behavior. Thus, a deep neural network suffices as a non-linear function approximator for CCP-IRL.
 
-We now analyze the computation gain in the non-linear case. Table \ref{table:table_results_objectworld} shows the computation time for different sized state spaces and different sized feature vectors. Notice that DeepCCP-IRL is almost 5$\times$ as fast as DeepMaxEnt-IRL across small and large state spaces. Thus, we see that CCP-IRL provides a much larger computation advantage for the non-linear case, which we believe is because the objectworld MDP problem is more complex than the above grid world experiments.
-This results in both algorithms requiring larger number of iterations until convergence which leads to a large computational increase for DeepMaxEnt-IRL as compared to DeepCCP-IRL. 
-This computational increase with larger number of iterations is also shown in Figure \ref{fig:img_objectworld_maxent_vs_ccp_time_results} (Right).
-Notice that as the number of iterations increase, our proposed DeepCCP-IRL algorithms shows minor computational increase as compared to DeepMaxEnt-IRL. 
-Thus, for significantly complex MDP problems which require large number of iterations our proposed CCP-IRL algorithm should require much less computation time compared to MaxEnt-IRL.
-% This results in each DP step taking longer for Objectworld which leads to large computation time for DeepMaxEnt-IRL.
-%Also, as seen in Figure \ref{fig:img_objectworld_maxent_vs_ccp_time_results} (Right), the computation gain for CCP-IRL holds across different number of iterations. This shows that the performance gain from CCP-IRL is largely independent of the number of iterations required to converge.
-
-% Additionally, to better understand the above computation gain we plot the time taken against number of iterations in figure \ref{fig:img_objectworld_maxent_vs_ccp_time_results}. As expected, DeepCCP-IRL shows negligible increase while DeepMaxEnt-IRL shows an almost exponential increase in computation time. Since DeepMaxEnt-IRL needs to solve the original MDP at every iteration step.
-
-% We next look at the data requirement for DeepCCP-IRL. Notice Figure \ref{fig:img_objectworld_maxent_vs_ccp_lr_01}, as before we see that with fewer trajectories DeepCCP-IRL performs much worse compared to DeepMaxEnt-IRL. As expected this is a direct consequence of not having consistent CCP estimates given the insufficient amount of input trajectories.
-
-% As seen above both DeepMaxent-IRL and DeepCCP-IRL show similar performance for both metrics with increasing number of trajectories. Thus both algorithms are able to recover the underlying reward function given sufficient trajectories. As before we see that with fewer trajectories DeepCCP-IRL performs much worse compared to DeepMaxEnt-IRL which is expected given that we need sufficient data for consistent CCP estimates. Also, Figure \ref{fig:img_objectworld_maxent_vs_ccp_time_results} shows the results for the transfer experiment which reinforce the need for more data for better results.
+We now analyze the computation gain in the non-linear case. Table \ref{table:table_results_objectworld} shows the computation time for different sized state spaces and different sized feature vectors. Notice that DeepCCP-IRL is almost 5$\times$ as fast as DeepMaxEnt-IRL across small and large state spaces. Thus, we see that CCP-IRL provides a large computation advantage for the non-linear case as well. We would also like to note that for more complex MDP problems the computational advantage for CCP-IRL would be much larger since CCP-IRL only runs the MDP step once. To illustrate this, we run the Objectworld experiment with different discount values and different number of iterations respectively, since lower discount and less iteration imply an easier MDP problem to solve. Figure \ref{fig:img_objectworld_maxent_vs_ccp_time_results} shows the computation time for DeepCCP-IRL and DeepMaxEnt-IRL in both these settings. As can be seen, as the MDP problem becomes more complex the CCP-IRL approch scales linearly compared to the exponential increase in MaxEnt-IRL.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
