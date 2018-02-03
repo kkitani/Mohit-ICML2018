@@ -295,12 +295,11 @@ For convenience, we will write the parameterized reward function as $r_{\theta}(
 
 \subsection{Model-based Reinforcement Learning with CCPs}
 
-Returning to the definition of the \emph{ex-ante} value function in Equation \eqref{eq:def_exante} and \eqref{eq:exantebellman}, notice that Equation \eqref{eq:exantebellman} is similar to the standard state-value function definition in reinforcement learning. \textcolor{blue}{Mohit, this is not the correct definition of the choice specific value function, I am re-writing these functions and using them again in the appendix} 
+Returning to the definition of the \emph{ex-ante} value function in Equation \eqref{eq:def_exante} and \eqref{eq:exantebellman}, notice that Equation \eqref{eq:exantebellman} is similar to the state-value function definition in reinforcement learning. 
 Analogously, define the choice-specific value function $V_a(x_t)$ as the reward and future value net of the shock for action $a$:
 \begin{align}
 \begin{split}
-V_a(x_t) &= r_{\theta}(x_t,a) \\
-& \qquad +\beta  \cdot E_{x_{t+1}|a,x_t} \left[ \overline{V}(x_{t+1}) \right] \Big].\\
+V_a(x_t) &= r_{\theta}(x_t,a)+\beta\cdot E_{x_{t+1}|a,x_t} \left[ \overline{V}(x_{t+1}) \right] .\\
 \end{split}
 \end{align}
 Hotz and Miller \yrcite{hotz} show that given \textit{consistent} CCP estimates from the data, equation \eqref{eq:exantebellman} can be estimated as,
@@ -317,7 +316,8 @@ Now, defining the expected shock given that action $a$ is optimal as $\tilde{\ep
 & \qquad +\beta \sum_{x_{t+1}\in\mathcal{X}} T(x_{t+1}|x_t,a) \overline{V}(x_{t+1})\Big]
 \end{split}
 \end{align}
-Hotz and Miller \yrcite{hotz} further show that $\tilde{\epsilon}(a|x_t)$ depends on CCPs and distribution of $\epsilon$ only. They prove that the mapping between CCPs and choice specific value function is \emph{invertible}. Using this inverse mapping and assuming TIEV distribution for $\epsilon$, we get $\tilde{\epsilon}(a|x_t) = \gamma - \log \sigma(a|x_t)$.
+Hotz and Miller \yrcite{hotz} further show that $\tilde{\epsilon}(a|x_t)$ depends on CCPs and distribution of $\epsilon$ only.
+To see this, notice that CCPs can be expressed as function of differences in choice specific value function, since action $a$ being optimal implies $V_a(x_t)- V_{a'}(x_t)\geq 0 \quad\forall a'\in\mathcal{A} - \{a\}$. The cornerstone of Hotz and Miller's approach is to show that this mapping between CCPs and choice specific value function is \emph{invertible}. Using this inverse mapping and assuming TIEV distribution for $\epsilon$, we get $\tilde{\epsilon}(a|x_t) = \gamma - \log \sigma(a|x_t)$.
 
 Using this result we will now write a closed form solution for $\overline{V}(x_t)$. For this we will first stack the \emph{ex-ante} value function over all states. Doing this we get,
 \begin{align} \label{eq:exantebellman_4}
@@ -613,7 +613,7 @@ Although not directly related to entropy based IRL approaches, but similar in sp
 
 In contrast to previous work, our CCP-IRL algorithm is generally applicable, as it makes no assumption on the MDP framework, and is applicable to both linear and non-linear reward parameterizations. Additionally, the CCP approach can also be used to estimate the reward in a completely \textit{non-parameteric} setting as well, a result due to \cite{magnac}, which we discuss in the Appendix.
 %Also, the optimizations used to scale MaxEnt-IRL to continuous spaces are orthogonal to CCP-IRL. Thus, it would be interesting to see how the CCP-IRL framework can be extended to these settings.
-In this work we focus on discrete problem settings to introduce the key insights from the CCP framework in a well understood paradigm. Although the CCP approach is applicable to situations with continuous state or action spaces \cite{??}, it is not yet clear how can CCPs be effectively applied to high-dimensional continuous control tasks in robotics. We leave this for future work.
+In this work we focus on discrete problem settings to introduce the key insights from the CCP framework in a well understood paradigm. Although the CCP approach is applicable to situations with continuous state or action spaces \cite{altuug1998effect}, it is not yet clear how can CCPs be directly applied to high-dimensional continuous control tasks in robotics. We leave this for future work.
 
 In conclusion, the CCP-IRL approach is much more generalizable than the other related works. Below, we discuss some of the other extensions relevant in AI research while also discussing one specific instance of this extension in the Appendix.
 
