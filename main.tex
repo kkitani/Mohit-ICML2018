@@ -154,7 +154,7 @@
 % The \icmlEqualContribution command is standard text for equal contribution.
 % Remove it (just {}) if you do not need this facility.
 
-\printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
+%\printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
 %\printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
 
 \begin{abstract}
@@ -163,7 +163,7 @@ We make an important connection to existing results in econometrics to describe 
 
 \section{Introduction}
 
-The problem of extracting the reward function of a task given observed optimal behavior has been studied in parallel in both robotics and economics. In robotics this literature is collected under the heading "Inverse Reinforcement Learning" (IRL), \cite{Ng2000, abbeel2004apprenticeship}. The aim here is to learn a reward function that best explains demonstrations of expert behavior so that a robotic system can reproduce expert like behavior. Alternatively, in economics it is referred to as "structural econometrics" \cite{miller, pakes, rust_gmc} and is used to help economists better understand human decision making. Although both fields developed in parallel, they are similar in that both seek to uncover a latent reward function of an underlying Markov Decision Process (MDP). In this work, we make important connections between literatures in both fields.
+The problem of extracting the reward function of a task given observed optimal behavior has been studied in parallel in both robotics and economics. In robotics this literature is collected under the heading "Inverse Reinforcement Learning" (IRL), \cite{Ng2000, abbeel2004apprenticeship}. The aim here is to learn a reward function that best explains demonstrations of expert behavior so that a robotic system can reproduce expert like behavior. In economics this literature is referred to as "structural econometrics" \cite{miller, pakes, rust_gmc}. Estimates are used to better understand human decision making and to simulate optimizing responses to changes in the environment, such as new constraints on choices. Although both fields developed in parallel, they are similar in that both seek to uncover a latent reward function of an underlying Markov Decision Process (MDP). In this work, we make important connections between both fields.
 
 % Both of the fields are similar in that both seek to uncover a \emph{latent} reward function of an underlying Markov Decision Process (MDP).
 % Although both fields developed in parallel there has been very limited knowledge transfer between them. To alleviate this we make the connection between these two fields more explicit. We uncover different problem formulations which give rise to similar algorithms. Specifically, we show how the softmax value function in \cite{ziebart} is exactly similar to the ex-ante value function in \cite{rust_gmc} under Type-1 extremum assumption.
@@ -172,7 +172,7 @@ One of the main challenges in IRL is the large computational complexity of moder
 
 This problem of computational complexity has also been studied in economics \cite{hotz, su2012constrained, aguirregabiria2002swapping}. Among the many works, Conditional Choice Probability (CCP) estimators \cite{hotz} are particularly interesting because of their computational efficiency.
 CCP estimators use CCP values to estimate the reward function of the MDP.
-The CCP values specify the optimal action for a state and are estimated from expert demonstrations. These estimators are computationally efficient, since they avoid the repeated computation of the DP step by using an alternative representation of the MDP's value function.
+The CCP values specify the optimal action for a state and are estimated from expert demonstrations. These estimators are computationally efficient, since they avoid the repeated computation of the DP step by using an alternative representation of the MDP's value function. As shown by \cite{magnac}, the CCP-IRL framework also enables us to estimate the reward function non-parametrically. We derive this result in the appendix.\footnote{\cite{klein2012inverse} derive an alternative framework that also avoids repeated solution of the DP. However, they are restricted to considering reward functions that can be expressed in linear form. The CCP framework provides greater flexibilty and does not rely on linearity to reduce computation.} Moreover, there are further benefits when considering non-stationary environments, discussed in \cite{arcidiacono2014nonstationary}.
 
 In this work we introduce Conditional Choice Probability IRL (CCP-IRL) by incorporating CCPs into IRL. We leverage results from \cite{rust_gmc, hotz, magnac} to formulate an estimation routine for the reward function with CCPs, that avoids repeated calls to the solver of the full dynamic decision problem. We test the CCP-IRL algorithm on multiple different IRL benchmarks and compare the results to the state-of-the-art IRL algorithm, MaxEnt-IRL \cite{ziebart}. In our experiments, we show that with CCP-IRL we can achieve up to 10$\times$ speedup without affecting the quality of the inferred reward function. Further, this speedup holds across large state spaces and increases for complex problems, such as, problems where value iteration takes much longer to converge. 
 
@@ -192,7 +192,7 @@ We assume a discrete state space, to avoid technical machinery out of the scope 
 $\mathcal{X}$ is a countable set of states with a cardinality of $|\mathcal{X}|$. $\mathcal{A}$ is a finite set of actions with cardinality $|\mathcal{A}|$. $T$ is the transition function where $T(x'|x,a)$ is the probability of reaching state $x'$ given current state $x$ and action $a$. The reward function $r$ is a mapping $r:\mathcal{A}\times\mathcal{X}\rightarrow \mathbb{R}$.
 
 Different from MDPs typically used in RL, each action also has a "payoff-shock" associated with it that enters payoffs additively.
-The motivation for this perturbation originates from a discrete choice literature \cite{mcfadden1973conditional} on static models as a way of reconciling why numerous economic agents with identical observed characteristics make different decisions to each other. Rather than assuming the agents are indifferent between all the decisions,
+The motivation for this perturbation originates from the discrete choice literature \cite{mcfadden1973conditional} on static models as a way of reconciling why numerous economic agents with identical observed characteristics make different decisions to each other. Rather than assuming the agents are indifferent between all the decisions,
 %that at least one of them takes (which might cover the choice set)
 an alternative assumption is that there is an additional characteristic pertinent for decision making that the modeller does not observe. The simplest of way of modeling this unobserved characteristic is to treat it as an independent, identically distributed random variable, one for each element in the choice set. Adding a payoff-shock to each choice at every decision node in DDC models is the dynamic analogue to escape a similar lacuna.
 This vector of shocks is denoted $\vec{\epsilon} = [ \epsilon_{1} \cdots \epsilon_{|\mathcal{A}|} ]$ and $\vec{\epsilon}\in \mathbb{R}^{|\mathcal{A}|}$. Total rewards for action $a \in \mathcal{A}$ in state $x \in \mathcal{X}$ are therefore given by:
@@ -290,18 +290,21 @@ Notice that \eqref{eq:ccps} is identical to the definition of the policy of the 
 \section{Conditional Choice Probability - Inverse Reinforcement Learning}
 
 Our aim in IRL is to estimate the reward function, usually parameterized $r(\theta)$, for the given MDP/R. We now show how we can leverage \textit{non-parameteric} estimates of choice conditional probabilities to efficiently estimate the parameters $\theta$ of the reward function. The key insight is that the optimal value function can be directly estimated from observed state-actions pairs (CCPs), observed over a set of expert demonstrations.
-First, we look at the alternative representation of the \emph{ex-ante} value function which can be derived from CCP estimates. Using this alternative representation we see how to avoid solving the original MDP problem repeatedly.
+First, we look at the alternative representation of the \emph{ex-ante} value function which can be derived from CCP estimates. Following this, we see how using this alternative representation can avoid solving the original MDP problem repeatedly.
 For convenience, we will write the parameterized reward function as $r_{\theta}(x)$.
 
 \subsection{Model-based Reinforcement Learning with CCPs}
 
 Returning to the definition of the \emph{ex-ante} value function in Equation \eqref{eq:def_exante} and \eqref{eq:exantebellman}, notice that Equation \eqref{eq:exantebellman} is similar to the state-value function definition in reinforcement learning. 
-Analogously, define the choice-specific value function $V_a(x_t)$ as the reward and future value net of the shock for action $a$:
+Analogously, define the integrated choice-specific value function $V_a(x_t)$ as the reward and future value as:
 \begin{align}
 \begin{split}
-V_a(x_t) &= r_{\theta}(x_t,a)+\beta\cdot E_{x_{t+1}|a,x_t} \left[ \overline{V}(x_{t+1}) \right] .\\
+V_a(x_t) &= E_{\vec{\epsilon}_t}\left[r_{\theta}(x_t,a)+\epsilon_{at}\right.\\
+&
+\left.\beta\cdot E_{x_{t+1}|a,x_t} \left[ \overline{V}(x_{t+1}) \right] \right]
 \end{split}
 \end{align}
+
 Hotz and Miller \yrcite{hotz} show that given \textit{consistent} CCP estimates from the data, equation \eqref{eq:exantebellman} can be estimated as,
 \begin{align} \label{eq:exantebellman_2}
 \begin{split}
@@ -352,15 +355,14 @@ Defining $\lambda$ as a $1\times|\mathcal{X}|$ vector of ones, we can write the 
 & \qquad \times \left[\sum_{a}\mathbf{S}(a) *\left[ \mathbf{R}_{\theta}(a)+\tilde{\bm{\epsilon}}(a)\right]\right]
 \end{split}
 \end{align}
-Notice that the inverse matrix in \eqref{eq:exante_inversion} is similar to the inverse matrix required for value function estimation in policy evaluation. The computational complexity of solving \eqref{eq:exante_inversion} is thus equivalent to known policy evaluation algorithms. 
-
+Notice that the inverse matrix in \eqref{eq:exante_inversion} is similar to the inverse matrix required for value function estimation in policy evaluation. The computational complexity of solving \eqref{eq:exante_inversion} is thus equivalent to known policy evaluation algorithms.\footnote{An alternative to using \ref{eq:exante_inversion} to estimate the value function is to use monte-carlo approximation, i.e. using the CCPs and transition matrix to simulate and store future a large number of action and state paths.}
 
 \subsection{Linear Reward Parameterization}
 
-The above closed form equation holds in the most general case of a non-parametric reward function. Equation \eqref{eq:exante_inversion} can be further simplified for a linear reward parameterization; $r_{\theta}(x,a) = \theta^{\top} z(x,a)$, where $z(x, a)$ is a feature representation for a given state-action pair. Stacking up the feature values we define $\mathbf{Z}(a) = [z(x, a); x \in \mathcal{X}]$. As before we stack the choice-specific value function to get $\mathbf{V}_a$. From \eqref{eq:exantebellman_4} we get
+The above closed form equation holds in the most general case of a non-parametric reward function. Equation \eqref{eq:exante_inversion} can be further simplified for a linear reward parameterization; $r_{\theta}(x,a) = \theta^{\top} z(x,a)$, where $z(x, a)$ is a feature representation for a given state-action pair. Stacking up the feature values we define $\mathbf{Z}(a) = [z(x, a); x \in \mathcal{X}]$. As before we stack the integrated choice-specific value function to get $\mathbf{V}_a$. From \eqref{eq:exantebellman_4} we get
 \begin{align} \label{eq:exante_linear}
     \begin{split}
-    \mathbf{V}_a=\mathbf{R}_{\theta}(a)+\beta \mathbf{T}(a) \sum_{a'}\mathbf{S}(a')\mathbf{V}_a'
+    \mathbf{V}_a=\mathbf{R}_{\theta}(a)+\widetilde{\vec{\epsilon}}(a)+\beta \mathbf{T}(a) \sum_{a'}\mathbf{S}(a')\mathbf{V}_a'
     \end{split}
 \end{align}
 Since $\mathbf{R}_{\theta}(a) = \mathbf{Z}(a)^T\theta$ for linear parameters, it is easy to show that \eqref{eq:exante_linear} can be written as $\mathbf{V}_a = \hat{\mathbf{Z}}(a)^T\theta + \hat{\bm{\epsilon}}(a)$, where we define
@@ -372,7 +374,7 @@ Since $\mathbf{R}_{\theta}(a) = \mathbf{Z}(a)^T\theta$ for linear parameters, it
 \end{align}
 Again both $\hat{\mathbf{Z}}(a)$ and $\hat{\bm{\epsilon}}(a)$ can be estimated via backwards recursion and is computationally similar to a single policy evaluation algorithm.
 
-In the above sections, we have shown how CCPs can be used to estimate a parameterized reward function. However, the CCP approach is more general and can also be used to estimate the reward functions \textit{non-parametrically}, conditional on assuming one action reward can be normalized to zero. We discuss these results in the Appendix.
+In the above, we have shown how CCPs can be used to estimate a parameterized reward function. However, the CCP approach is more general and can also be used to estimate the reward functions \textit{non-parametrically}, conditional on assuming one action reward can be normalized to zero. We discuss these results in the Appendix.
 
 \begin{figure*}[ht]
 \begin{minipage}[t]{0.45\textwidth}
@@ -419,7 +421,7 @@ In the above sections, we have shown how CCPs can be used to estimate a paramete
 We now look at how to efficiently solve the IRL problem using the above value function representation. 
 We compare against MaxEnt-IRL, since, as shown above, the ex-ante value function representation is similar to MaxEnt-IRL.
 MaxEnt-IRL involves estimating the parameters $\theta$ of the reward function using an iterative procedure.
-At every step of the iteration we need to estimate the value function by solving the MDP problem using an RL algorithm. Since this happens repeatedly it can be prohibitively expensive.
+At every step of the iteration, we need to estimate the value function by solving the MDP problem using an RL algorithm. Since this happens repeatedly, it can be prohibitively expensive.
 
 In contrast, the above value function representations (\eqref{eq:exante_inversion} and \eqref{eq:exante_linear}) can be used to estimate the value function much more efficiently. To see this, notice that in \eqref{eq:exante_inversion} we can pre-calculate the inverse matrix once. Alternately, for linear parameters we can pre-calculate \eqref{eq:choice_specific_Z_tilde}. Both of these pre-computations are similar to solving the MDP problem \textit{once}. Given these pre-computed values we can calculate the value function, for all different values of $\theta$, using simple matrix operations only. Thus, in contrast to solving a full MDP problem using model-based RL algorithm, we only require simple matrix operations at every step of the iterative procedure.
 
@@ -449,7 +451,8 @@ Defining $A \equiv \left(I- \beta \sum_{a}(\mathbf{S}(a) \lambda) *\left[ \mathb
 In this section we empirically validate, (1) the computational efficiency of CCP-IRL and (2) the underlying assumptions of consistent CCP estimates \emph{i.e.,} we show the data requirement for CCP-IRL.
 We show results for both linear and non-linear reward settings since both of these have been used previously in IRL \cite{ziebart2010modeling, wulfmeier2015maximum}. For the former, we use a car driving simulator, similar to previous works \cite{abbeel2004apprenticeship, klein2012inverse}, while for the latter we choose the Objectworld task as described in \cite{Levine2013}.
 Since, as shown above, CCP-IRL is closely related to MaxEnt-IRL, we use it as a baseline method to compare our results. 
-Another method which uses expert policy estimates to solve IRL is, Structured Classification IRL (SCIRL) \cite{klein2012inverse}. However, SCIRL uses these estimates in a max-margin framework, which is fundamentally different from the maximum entropy approach followed in CCP-IRL and MaxEnt-IRL. Additionally, SCIRL is further limited to \textit{linear reward} formulations only. Despite these differences, we compare our results with SCIRL to show the generalizability of CCP-IRL.
+Another method which uses expert policy estimates to solve IRL is, Structured Classification IRL (SCIRL) \cite{klein2012inverse}. However, SCIRL uses these estimates in a max-margin framework, which is fundamentally different from the entropy based IRL approaches, such as, CCP-IRL. Additionally, SCIRL is further limited to \textit{linear reward} formulations only.
+Despite these differences, we use SCIRL as another baseline to show the efficacy of expert CCP estimates as well as to highlight the generalizability of CCP-IRL to non-linear reward settings.
 
 For comparative analysis, we use negative log likelihood (NLL) \cite{kitani2012activity} and expected value difference (EVD) \cite{levine2011nonlinear} as the evaluation criterion. NLL is a probabilistic comparison metric and evaluates the likelihood of a path under the predicted policy. For a policy ($\pi$), NLL is defined as,
 \begin{align}
@@ -598,7 +601,7 @@ We now analyze the computation gain in the non-linear case. Table \ref{table:tab
 
 \section{Related Work \& Discussion}
 
-Past work in scaling IRL for large spaces has looked at discrete and continuous spaces separately. This is because applying Max-Ent IRL to continuous spaces is much more challenging and requires its own set of assumptions. Trivially, we could discretize the continuous space and then apply MaxEnt-IRL algorithm directly. However, this scales exponentially with respect to the state space and is thus infeasible in practice. 
+Past work in scaling IRL for large spaces has looked at discrete and continuous spaces separately. Applying Max-Ent IRL to continuous spaces is more challenging. Trivially, we could discretize the continuous space and then apply MaxEnt-IRL algorithm directly. However, this scales exponentially with respect to the state space and is thus infeasible in practice. 
 Hence, more sophisticated algorithms are required to extend MaxEnt-IRL to continuous spaces. 
 
 For discrete spaces, past work such as, \cite{huang2015approximate} has mainly focused on approximating the value iteration step in IRL. However, since the MDP problem is still being solved at every step of an iterative procedure this does not scale to very large spaces. For continuous domains, most algorithms use local approximation to estimate the partition function in MaxEnt-IRL. Using local approximations requires giving up on global optimality, but allows the algorithms to scale to high dimensional continuous domains \cite{levine2012continuous, kalakrishnan2013learning, finn2016guided}.
@@ -607,15 +610,15 @@ Alternately, some IRL algorithms have focused on a smaller subset of MDP problem
 Also, since OptV finds the parameters in value-function space it is not clear how meaningfully these features can be transferred across different tasks \cite{levine2012continuous}.
 %In contrast, our work makes no such approximation of the general MDP framework and is thus applicable everywhere.
 
-Although not directly related to entropy based IRL approaches, but similar in spirit to our work, is \cite{klein2012inverse}. In this work the authors assume linear reward parameters and use the feature expectation of the expert in a multi-class classification framework. Since they use a max-margin planning algorithm for their classification framework, they call their algorithm Structured Classification IRL (SCIRL). However, SCIRL is very different from CCP-IRL, since a classification framework has no notion of the MDP problem being solved and tries to directly imitate the expert behavior. For more discussion on the differences between IRL and max-margin planning approach we refer the reader to \cite{Ratliff2006, ziebart2010modeling}. Another key restriction of their work is that the reward must be expressed as a \textit{linear combination} of features only.
+Although not directly related to entropy based IRL approaches, but similar in spirit to our work, is \cite{klein2012inverse}. In this work the authors assume linear reward parameters and use the feature expectation of the expert in a multi-class classification framework. Since they use a max-margin planning algorithm for their classification framework, they call their algorithm Structured Classification IRL (SCIRL). However, SCIRL is very different from CCP-IRL, since a classification framework has no notion of the MDP problem being solved and tries to directly imitate the expert behavior. For more discussion on the differences between IRL and max-margin planning approach we refer the reader to \cite{Ratliff2006, ziebart2010modeling}. Another key restriction of their work is that the reward must be expressed as a \textit{linear combination} of features only.\footnote{\cite{klein2012inverse} suggest using basis functions to generate flexibility, however, this introduces another layer of approximation.}
 
 % The key restriction in that paper is that the reward function must be expressed as a linear combination of basis functions of states. A key advantage of CCP-IRL is the ability to estimate reward functions semi-parametrically, a result due to \cite{magnac} which we discuss in the appendix. In addition, CCP-IRL allows us to leverage properties of finite-dependence to further reduce computational burden in more general environments. These results are discussed in \cite{arcidiacono2014nonstationary}.
 
-In contrast to previous work, our CCP-IRL algorithm is generally applicable, as it makes no assumption on the MDP framework, and is applicable to both linear and non-linear reward parameterizations. Additionally, the CCP approach can also be used to estimate the reward in a completely \textit{non-parameteric} setting as well, a result due to \cite{magnac}, which we discuss in the Appendix.
+In contrast to previous work, our CCP-IRL algorithm is generally applicable, as it makes no assumption on the MDP framework, and is applicable to both linear and non-linear reward parameterizations. Additionally, the CCP approach can also be used to estimate the reward in a completely \textit{non-parametric} setting as well, a result due to \cite{magnac}, which we discuss in the Appendix.
 %Also, the optimizations used to scale MaxEnt-IRL to continuous spaces are orthogonal to CCP-IRL. Thus, it would be interesting to see how the CCP-IRL framework can be extended to these settings.
-In this work we focus on discrete problem settings to introduce the key insights from the CCP framework in a well understood paradigm. Although the CCP approach is applicable to situations with continuous state or action spaces \cite{altuug1998effect}, it is not yet clear how can CCPs be directly applied to high-dimensional continuous control tasks in robotics. We leave this for future work.
+In this work we focus on discrete problem settings to introduce the key insights from CCPs in a well understood paradigm. Although CCPs are applicable to situations with continuous state or action spaces \cite{altuug1998effect}. There has also been progress in applying CCP-like estimators to single dimensional continuous controls in complex environments, such as dynamic strategic settings. \cite{pesendorfer} uses a two-step approach to estimate rewards in a dynamic pricing game. It is not yet clear how CCPs extend to high-dimensional continuous control tasks in robotics. We leave this for future work.
 
-In conclusion, the CCP-IRL approach is much more generalizable than the other related works. Below, we discuss some of the other extensions relevant in AI research while also discussing one specific instance of this extension in the Appendix.
+In conclusion, CCP-is more generalizable than other related frameworks. Below, we discuss some of the other extensions relevant in AI research while also discussing one specific instance of this extension in the Appendix.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -624,9 +627,11 @@ In conclusion, the CCP-IRL approach is much more generalizable than the other re
 % CCP framework helps in the unidentification of the reward formulation
 % CCP formulation helps in using other empirial models developed by economists e.g. what if we use a different form of human optimality.
 We now discuss some extensions of the CCP framework as used in economics which are relevant in robotics and AI research.  
-The CCP framework provides methods to investigate the well known under-identification problem in IRL. Some recent work \cite{amin2017repeated} has focused on the unidentifiability problem in IRL. In \cite{amin2017repeated} the authors focus on identification guarantees when the agent can choose the task rewards in multiple fixed environment settings. In contrast, CCP approach can be used to clarify necessary assumptions to ensure a ``unique" mapping from trajectories to the reward functions \cite{magnac}. CCP approach is also used in multi-agent settings where strategic situations involve multiple equilibria, this often necessitates some equilibrium selection rules. With CCPs and a dataset on a single path of play, it is possible to estimate rewards without having to solve the game and to correctly select the equilibrium in the data \cite{pese}.
+The CCP framework provides methods to investigate the well known under-identification problem in IRL. Some recent work \cite{amin2017repeated} has focused on the unidentifiability problem in IRL. In \cite{amin2017repeated} the authors focus on identification guarantees when the agent can choose the task rewards in multiple fixed environment settings. In contrast, the CCP approach can be used to clarify necessary assumptions to ensure a ``unique" mapping from trajectories to the reward functions \cite{magnac}. 
 
-Further, the mapping between exante value functions and conditional choices probabilities does not only apply to stationary discrete choice optimization problems, but also to non-stationary dynamic problems \cite{arcidiacono2014nonstationary}, and non-cooperative dynamic games \cite{bajari}. In the latter case, we can leverage off the notion that in equilibrium, experts solve a dynamic optimization problem as a best response to the conditional choice probabilities their rivals in the game exhibit. 
+The CCP approach is also used successfully in multi-agent settings where strategic situations generally lead to multiple equilibria. Any IRL algorithm that \emph{solves} the DP numerically will require an ad-hoc equilibrium selection rule. Moreover, there is no data-driven way to ensure the selection rule is identifying the equilibrium in the data. It is therefore highly likely that an IRL algorithm can match the data by selecting the wrong reward parameters and the wrong equilibrium. In other words, matching the data is not enough to guarantee the accuracy of measurements. However, with CCPs and a dataset on a single path of play, it is possible to estimate rewards consistently. The data allow us to directly estimate the policy functions of the equilibrium in the data. The CCP representations of the value function therefore are for the correct equilibrium. It is then possible to correctly estimate the reward function, without having to solve the game and to correctly select the equilibrium in the data \cite{pese}.
+
+Furthermore, the CCP framework opens up the possibility of estimating rewards in non-stationary environments. The CCP framework leads computational simplifications in settings where actions terminate the decision problem or a sequence of actions ``reset" the future state distributions \cite{arcidiacono2014nonstationary}. These results allow us to represent future values as arbitrary sequences of future CCPs.
 % But to highlight the connections between IRL and CCP estimation, in this paper we focus only on stationary discrete choice optimization problems,
 
 %Finally, we look at the data requirement for CCP-IRL. A complete theoretical analysis of sample complexity of CCPs is beyond the scope of our initial work. However, we would like to refer the reader to Aguirregabiria and Mira \yrcite{aguirregabiria2002swapping} which discuss some sample properties of CCP estimators. More importantly, the authors show that one-step CCP estimators (such as CCP-IRL) can have large bias with insufficient data.  To reduce this bias they introduce a successive iteration procedure which results in a sequence of estimators. They further show that this iteration until convergence will realize the original MaxEnt-IRL estimator.
@@ -664,12 +669,12 @@ We have described an alternative framework for inverse reinforcement learning (I
 % \end{align}
 % Define the value function difference for action $a$ and $a_0$ as:
 % \begin{align}
-% \Delta_a(x)\triangleq V_a(x)-V_{a_0}(x).
+% \Delta_a(x)\triangleq V_a(x)-W_{a_0}(x).
 % \end{align}
-% The base action $a_0$ is selected, one action for each state, for which the immediate reward is normalized to zero. Now add and subtract $V_{a_0}(x_{t+1})$ within the max operator in (\ref{eq:vamax}), introduce the short-hand $T^{x_{t+1}}_{x_t,a}$, and expanding the expectation with TIEV yields:
+% The base action $a_0$ is selected, one action for each state, for which the immediate reward is normalized to zero. Now add and subtract $W_{a_0}(x_{t+1})$ within the max operator in (\ref{eq:vamax}), introduce the short-hand $T^{x_{t+1}}_{x_t,a}$, and expanding the expectation with TIEV yields:
 % \begin{eqnarray}\label{eq:cond_choice_v}
 % V_a(x_t)=r(a,x_t)+\beta \sum_{x_{t+1}} T^{x_{t+1}}_{x_t,a}  \\ 
-% \left[V_{a_0}(x_{t+1})+\ln\left[1+ \sum_{a'\neq a_0}\exp(\Delta_{a'}(x_{t+1}))\right]+\gamma\right]\label{eq:vax}
+% \left[W_{a_0}(x_{t+1})+\ln\left[1+ \sum_{a'\neq a_0}\exp(\Delta_{a'}(x_{t+1}))\right]+\gamma\right]\label{eq:vax}
 % \end{eqnarray}
 % We now have the choice-specific value function defined in terms of the value function difference $\Delta_{a}$.
 
@@ -683,9 +688,9 @@ We have described an alternative framework for inverse reinforcement learning (I
 % \end{eqnarray}
 
 
-% Multiplying and dividing by $\exp(-V_{a_0}(x_t))$ leads to
+% Multiplying and dividing by $\exp(-W_{a_0}(x_t))$ leads to
 % \begin{eqnarray}
-% \sigma(a|x_t)=\frac{\exp(V_a(x_t)-V_{a_0}(x_t))}{\sum_{a'} \exp(V_{a'}(x_t)-V_{a_0}(x_t))}=\frac{\exp(\Delta_a(x_t))}{\sum_{a'} \exp(\Delta_{a'}(x_t))}.
+% \sigma(a|x_t)=\frac{\exp(V_a(x_t)-W_{a_0}(x_t))}{\sum_{a'} \exp(V_{a'}(x_t)-W_{a_0}(x_t))}=\frac{\exp(\Delta_a(x_t))}{\sum_{a'} \exp(\Delta_{a'}(x_t))}.
 % \end{eqnarray}
 
 
@@ -704,18 +709,18 @@ We have described an alternative framework for inverse reinforcement learning (I
 % %
 % Using the CCP ratio, the value function for the base action $a_0$ can be expressed as:
 % \begin{eqnarray}
-% V_{a_0}(x_t) 
+% W_{a_0}(x_t) 
 % = 
 % \beta\sum_{x_{t+1}}
 % T(x_{t+1}|x_t,a_0) 
-% \left[V_{a_0}(x_{t+1})+\ln\left[1+ \sum_{a'\neq a_0}\frac{\sigma(a'|x_{t+1})}{\sigma(a_0|x_{t+1})}\right]+\gamma\right]
+% \left[W_{a_0}(x_{t+1})+\ln\left[1+ \sum_{a'\neq a_0}\frac{\sigma(a'|x_{t+1})}{\sigma(a_0|x_{t+1})}\right]+\gamma\right]
 % \end{eqnarray}\label{eq:va0}
 
 % \subsection{Solving for the Optimal Value Function}
 
-% Since we have expressed the choice-specific (a base action) value function in terms of just the transition function and CCPs, we can now estimate $V_{a_0}$ as a fixed point of the above linear equation -- without the knowledge of the full value function or the reward function. In particular, stacking the value function  $V_{a_0}$ for all states yields a $m_x\times 1$ vector:
+% Since we have expressed the choice-specific (a base action) value function in terms of just the transition function and CCPs, we can now estimate $W_{a_0}$ as a fixed point of the above linear equation -- without the knowledge of the full value function or the reward function. In particular, stacking the value function  $W_{a_0}$ for all states yields a $m_x\times 1$ vector:
 % \begin{eqnarray}
-% \mathbf{V}_0\equiv \left[\begin{array}{c} V_{a_0}(x_1)\\V_{a_0}(x_2)\\\vdots\\ V_{a_0}(x_{m_x})\end{array}\right]
+% \mathbf{V}_0\equiv \left[\begin{array}{c} W_{a_0}(x_1)\\W_{a_0}(x_2)\\\vdots\\ W_{a_0}(x_{m_x})\end{array}\right]
 % \end{eqnarray}
 % and $\mathbf{T}$ is the transition matrix with entry $T(x_{j}|x_m,a_0)$ for the $m$th row and the $j$th column. 
 
@@ -741,7 +746,7 @@ We have described an alternative framework for inverse reinforcement learning (I
 
 % The above is the unique fixed point. The value function for every state can then be estimated as:
 % \begin{eqnarray}
-% V_a(x_t)=\ln(\sigma(a|x_t))-\ln(\sigma(a_0|x_t))+V_{a_0}(x_t).\label{eq:v_backout}
+% V_a(x_t)=\ln(\sigma(a|x_t))-\ln(\sigma(a_0|x_t))+W_{a_0}(x_t).\label{eq:v_backout}
 % \end{eqnarray}
 
 
@@ -753,7 +758,7 @@ We have described an alternative framework for inverse reinforcement learning (I
 % r(a,x_t)
 % =V_a(x_t)- \nonumber\\ \beta\sum_{x_{t+1}\in\mathcal{X}}T(x_{t+1}|x_t,a) 
 % \left\{
-% V_{a_0}(x_{t+1})
+% W_{a_0}(x_{t+1})
 % +\ln
 %  \left(
 %     1 + \sum_{a'\in\mathcal{A}}\frac{\sigma(a|x_{t+1})}{\sigma(a_0|x_{t+1})}
@@ -956,33 +961,33 @@ We have described an alternative framework for inverse reinforcement learning (I
 
 % Notice that to estimate $\mathbf{W}_{\theta}$ using \eqref{eq:w_inversion_non_linear} we need to calculate $\mathbf{z}(a, \theta)$ at every step of the iteration. But the inverse matrix $\left( \mathbf{I} - \beta \sum_{a}\mathbf{P}(a) \cdot \mathbf{T}_{x'|x}(a) \right)^{-1}$ is independent of $\theta$ and hence can be pre-computed once for all iterations. This inverse matrix computes the state visitation frequency for each state, weighted by the appropriate discount factor and hence encompasses a large part of calculations involved in MaxEnt \cite{ziebart_phd}. 
 % Thus, similar to the linear case we can efficiently estimate $W_{\theta}$ for different values of $\theta$ by simple matrix computations.
-
+\begin{appendix}
 \section{Non-Parametric Estimation of the Reward Function}
 
 We now detail how the CCP approach can be used to estimate the reward function in a non-parameteric setting. We would like to note that this is one specific instance of the generalizability of the CCP approach. However, as discussed in the main paper it can be extended to many more settings which are beyond the scope of our initial work.
 
 To estimate the reward function non-parametrically we assume that shocks are TIEV and a normalization that one action generates a zero reward in every state. 
-We now express the CCP in terms of choice specific value function differences. Recall that the choice specific value function is given by:
+We now express the CCP in terms of choice specific value function differences. Define the choice specific value function for action $a$ as the reward from $a$ and the future value net of the payoff shock:
 \begin{align}
 \begin{split}
-V_a(x_t) &= r_{}(x_t,a)+\beta  \cdot E_{x_{t+1}|a,x_t} \left[ \overline{V}(x_{t+1}) \right] 
+W_a(x_t) &= r_{}(x_t,a)+\beta  \cdot E_{x_{t+1}|a,x_t} \left[ \overline{V}(x_{t+1}) \right] 
 \end{split}
 \end{align}
 The CCP expressed in terms of choice specific values is then:
 \begin{align} 
 \begin{split}
 \sigma(a|x_t)&=\frac{\exp\left(r(x_t,a)+\beta E_{x_{t+1}|x_t,a} \overline{V}(x_{t+1})\right)}{\sum_{a'\in\mathcal{A}} \exp\left(r(x_t,a')+\beta E_{x_{t+1}|x_t,a'} \overline{V}(x_{t+1})\right)}\\
-&=\frac{\exp(V_a(x_t))}{\sum_{a'\in\mathcal{A}} \exp(V_{a'}(x_t))}
+&=\frac{\exp(W_a(x_t))}{\sum_{a'\in\mathcal{A}} \exp(W_{a'}(x_t))}
 \end{split}
 \end{align}
-Denote the action with zero reward by $a_0$. Multiply the CCP by $\frac{\exp(-V_{a_0}(x_t))}{\exp(-V_{a_0}(x_t))}$ which leads to  
+Denote the action with zero reward by $a_0$. Multiply the CCP by $\frac{\exp(-W_{a_0}(x_t))}{\exp(-W_{a_0}(x_t))}$ which leads to  
 \begin{align}
 \begin{split}
-\sigma(a|x_t)&=\frac{\exp(V_a(x_t)-V_{a_0}(x_t))}{\sum_{a'} \exp(V_{a'}(x_t)-V_{a_0}(x_t))}\\
+\sigma(a|x_t)&=\frac{\exp(W_a(x_t)-W_{a_0}(x_t))}{\sum_{a'} \exp(W_{a'}(x_t)-W_{a_0}(x_t))}\\
 &=\frac{\exp(\Delta_a(x_t))}{\sum_{a'} \exp(\Delta_{a'}(x_t))}
 \end{split}
 \end{align}
-where $\Delta_{a'}(x_t)=V_{a'}(x_t)-V_{a_0}(x_t)$
+where $\Delta_{a'}(x_t)=W_{a'}(x_t)-W_{a_0}(x_t)$
 It is clear from the above that choice-specific value function differences between action $a$ and some other action $a'$ are equal to:
 \begin{align}\label{eq:ccp_ratio}
 \begin{split}
@@ -996,11 +1001,11 @@ It is clear from the above that choice-specific value function differences betwe
 &=\exp(\Delta_{a'}(x_t))
 \end{split}
 \end{align}
-where the last equality follows from the fact that $\exp(\Delta_{a_0})=\exp(V_{a_0}(x_t)-V_{a_0}(x_t))=\exp(0)=1$.
+where the last equality follows from the fact that $\exp(\Delta_{a_0})=\exp(W_{a_0}(x_t)-W_{a_0}(x_t))=\exp(0)=1$.
 Now we consider the choice specific value function for the base action $a_0$. 
 \begin{align}
 \begin{split}
-V_{a_0}(x_t) &= \beta  \cdot E_{x_{t+1}|a_0,x_t} \left[ \overline{V}(x_{t+1}) \right] 
+W_{a_0}(x_t) &= \beta  \cdot E_{x_{t+1}|a_0,x_t} \left[ \overline{V}(x_{t+1}) \right] 
 \end{split}
 \end{align}
 Recall that:
@@ -1013,52 +1018,53 @@ Recall that:
 which we can re-write in terms of choice specific value functions as:
 \begin{align} 
 \begin{split}
-\overline{V}(x_t) &=\ln\left[\sum_{a\in\mathcal{A}} \exp\left(V_a(x_t) \right)\right]+\gamma,
+\overline{V}(x_t) &=\ln\left[\sum_{a\in\mathcal{A}} \exp\left(W_a(x_t) \right)\right]+\gamma,
 \end{split}
 \end{align}
-We can then write the above in terms of choice specific value function differences by multiplying and dividing by $\exp(V_{a_0}(x_t))$ inside of the summation
+We can then write the above in terms of choice specific value function differences by multiplying and dividing by $\exp(W_{a_0}(x_t))$ inside of the summation
 \begin{align}
 \begin{split}
-\overline{V}(x_t) &=\ln\left[\sum_{a\in\mathcal{A}} \exp\left(V_a(x_t) \right)\right]+\gamma
-\\&=\ln\left[\sum_{a\in\mathcal{A}} \exp(V_a(x_t))\exp(-V_{a_0}(x_t))\exp(V_{a_0}(x_t))\right]+\gamma
-\\&=\ln\left[\exp(V_{a_0}(x_t))\sum_{a\in\mathcal{A}} \exp(V_a(x_t)-V_{a_0}(x_t))\right]+\gamma\\
-&=V_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(V_a(x_t)-V_{a_0}(x_t))\right]+\gamma
+\overline{V}(x_t) &=\ln\left[\sum_{a\in\mathcal{A}} \exp\left(W_a(x_t) \right)\right]+\gamma
+\\&=\ln\left[\sum_{a\in\mathcal{A}} \exp(W_a(x_t))\exp(-W_{a_0}(x_t))\exp(W_{a_0}(x_t))\right]+\gamma
+\\&=\ln\left[\exp(W_{a_0}(x_t))\sum_{a\in\mathcal{A}} \exp(W_a(x_t)-W_{a_0}(x_t))\right]+\gamma\\
+&=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(W_a(x_t)-W_{a_0}(x_t))\right]+\gamma\\
+&=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(\Delta_a(x_t))\right]+\gamma
 \end{split}
 \end{align}
-And therefore using the ratio of CCPs in 
-\begin{align} 
-\begin{split}
-\overline{V}(x_t) &=V_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(V_a(x_t)-V_{a_0}(x_t))\right]+\gamma\\
-&=V_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(V_a(x_t)-V_{a_0}(x_t))\right]+\gamma\\
-\end{split}
-\end{align}
+% And therefore using the ratio of CCPs in 
+% \begin{align} 
+% \begin{split}
+% \overline{V}(x_t) &=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(W_a(x_t)-W_{a_0}(x_t))\right]+\gamma\\
+% &=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(W_a(x_t)-W_{a_0}(x_t))\right]+\gamma\\
+% \end{split}
+% \end{align}
 Using the CCP ratio from (\ref{eq:ccp_ratio}), the above can be expressed as:
 \begin{align} 
 \begin{split}
-\overline{V}(x_t) &=V_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(V_a(x_t)-V_{a_0}(x_t))\right]+\gamma\\
-&=V_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \frac{\sigma(a|x_t)}{\sigma(a_0|x_t)}\right]+\gamma\\
-&=V_{a_0}(x_t)+\ln\left[1+\sum_{a\in\mathcal{A}\setminus a_0} \frac{\sigma(a|x_t)}{\sigma(a_0|x_t)}\right]+\gamma
+\overline{V}(x_t) &=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(\Delta_a(x_t))\right]+\gamma\\
+&=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \frac{\sigma(a|x_t)}{\sigma(a_0|x_t)}\right]+\gamma\\
+&=W_{a_0}(x_t)+\ln\left[1+\sum_{a\in\mathcal{A}\setminus a_0} \frac{\sigma(a|x_t)}{\sigma(a_0|x_t)}\right]+\gamma
 \end{split}
 \end{align}
 the value function for the base action $a_0$ can then be expressed as:
 \begin{align}
 \begin{split}
-V_{a_0}(x_t)&=
+W_{a_0}(x_t)&=
  \beta E_{x_{t+1}|x_t,a_0}
-\Bigg[V_{a_0}(x_{t+1}) \\
+\Bigg[W_{a_0}(x_{t+1}) \\
 &\left. +\ln\left[1+ \sum_{a'\in\mathcal{A}\setminus a_0}\frac{\sigma(a'|x_{t+1})}{\sigma(a_0|x_{t+1})}\right]+\gamma\right]
 \end{split}
 \end{align}
-The only unknown in the above is $V_{a_0}$ which can be solved for using fixed point iteration or matrix inversion. The value function for every state can then be estimated as:
+The only unknown in the above is $W_{a_0}$ which can be solved for using fixed point iteration or matrix inversion. The value function for every state can then be estimated as:
 \begin{eqnarray}
-V_a(x_t)=\ln(\sigma(a|x_t))-\ln(\sigma(a_0|x_t))+V_{a_0}(x_t).\label{eq:v_backout}
+W_a(x_t)=\ln(\sigma(a|x_t))-\ln(\sigma(a_0|x_t))+W_{a_0}(x_t).\label{eq:v_backout}
 \end{eqnarray}
 It is then possible to estimate the reward function directly:
 \begin{align}
 \begin{split}
 r(a,x_t)
-&=V_a(x_t)- \beta E_{x_{t+1}|x_t,a}\Bigg\{
-V_{a_0}(x_{t+1})
+&=W_a(x_t)- \beta E_{x_{t+1}|x_t,a}\Bigg\{
+W_{a_0}(x_{t+1})
 \\ &\left.\qquad +
 \ln
   \left(
@@ -1095,4 +1101,6 @@ V_{a_0}(x_{t+1})
 % \ln\sigma(a|x_t)-\ln \sigma(a'|x_t)=\left(r(x_t,a)+\beta E_{x_{t+1}|x_t,a} \overline{V}(x_{t+1})\right)-\left(r(x_t,a')+\beta E_{x_{t+1}|x_t,a'} \overline{V}(x_{t+1})\right)
 % \end{split}
 % \end{align}
+
+\end{appendix}
 \end{document}
