@@ -197,7 +197,10 @@ Prior work in scaling these methods to large spaces has looked at discrete and c
 %Alternately, applying probabilistic approaches, such as Max-Ent IRL \cite{ziebart}, to continuous spaces involves its own set of assumptions.
 Trivially, we could discretize the continuous space and then apply IRL algorithms directly. However, this scales exponentially with respect to the state space and is thus infeasible in practice. 
 
-To scale Max-Ent IRL to large spaces, past work in discrete domain \cite{huang2015approximate} has mainly focused on approximating the value iteration step in IRL. However, since the MDP problem is still being solved at every step of an iterative procedure, this does not scale to very large spaces. For continuous domains, most algorithms use local approximation to estimate the partition function in MaxEnt-IRL. Using local approximations requires giving up on global optimality, but allows the algorithms to scale to high dimensional continuous domains \cite{levine2012continuous, kalakrishnan2013learning, finn2016guided}.
+To scale Max-Ent IRL to large spaces, past work in discrete domain \cite{huang2015approximate} has mainly focused on approximating the value iteration step in IRL. However, since the MDP problem is still being solved at every step of an iterative procedure, this does not scale to very large spaces. For continuous domains, most algorithms use local approximation to estimate the partition function in MaxEnt-IRL. Using local approximations requires giving up on global optimality, but allows the algorithms to scale to high dimensional continuous domains \cite{levine2012continuous, kalakrishnan2013learning, finn2016guided}. 
+In contrast, \cite{boularias2011relative} propose using an importance sampling trick to avoid solving the MDP repeatedly. However, this requires sampling from an arbitrary policy which can have large variance. Additionally, \cite{vernaza2012efficient} constrain the features to low dimensional embedding to estimate the partition function effectively. However, this still does not avoid solving the MDP problem repeatedly.
+
+% There also exist some other sampling based approaches \cite{RelEntIRL} which avoid solving the MDP problem repeatedly. However, such approaches use importance sampling and require sampling from an arbitrary policy. This often leads to large variance 
 
 For max-margin formulations, past work \cite{klein2012inverse}, uses expert policy estimates to get the feature expectations in a structured classification framework. Hence, the authors call their algorithm, Structured Classification IRL (SCIRL). This is similar in spirit to our work, since both methods use expert policy estimates (CCP values). However, a key restriction in SCIRL is that the reward must be expressed as a \textit{linear combination} of features only\footnote{\cite{klein2012inverse} suggest using basis functions to generate flexibility, however, this introduces another layer of approximation and is not generalizable.}. Further, since SCIRL solves a max-margin problem, it suffers from the difficulties associated with this learning process, such as, difficulties in the presence of imperfect demonstrated behavior \cite{ziebart2010modeling}.
 
@@ -407,8 +410,49 @@ Again both $\hat{\mathbf{Z}}(a)$ and $\hat{\bm{\epsilon}}(a)$ can be estimated v
 
 Above, we have shown how CCPs can be used to estimate a parameterized, both linear and non-linear, reward function. However, the CCP approach is much more general and can also be used to estimate the reward functions \textit{non-parametrically}, conditional on assuming one action reward can be normalized to zero. We discuss these results in the Appendix.
 
-\begin{figure*}[ht]
-\begin{minipage}[t]{0.45\textwidth}
+% \begin{figure*}[ht]
+% \begin{minipage}[t]{0.45\textwidth}
+%   %\vspace{0pt}  
+%   \begin{algorithm}[H]
+%     \caption{CCP-IRL algorithm} \label{algo:ccp_irl_algorithm}
+%     \begin{algorithmic}[1]
+%         %\Procedure{CCP-IRL}{$\mu_D,f, S, A, T, \gamma$}
+%         \STATE {\bfseries Input:} expert features $\mu_D$, ccp $\mathbf{S}$, transition $\mathbf{T}$, discount $\gamma$
+%         \STATE $\theta^{(0)} \gets$ init\_weights
+%         \STATE $\mathbf{M} \gets \left[\mathbf{I}-\sum_{a}(\mathbf{S}(a) \lambda) *\left[ \gamma \mathbf{T}(a)  \right]\right]^{-1}$ 
+%         \STATE $\tilde{\bm{\epsilon}} \gets \gamma - \log \mathbf{S}(a)$
+%         \FOR{$i\gets 1, n$}
+%             \STATE $R^{(i)} \gets \mathbf{R}(\theta^{(i)}))$
+%             \STATE $V^{(i)} \gets \mathbf{M} \times \sum_{a}{\mathbf{S}(a) \times \left[ R^{(i)} +\tilde{\bm{\epsilon}}\right]}$
+%             \STATE $\pi_{\theta}^{(i)}(a|x) \gets e^{V^{(i)}(x_a) - V^{(i)}(x)}$
+%             \STATE $E[\mu^{(i)}] \gets $ FORWARD PASS()
+%             \STATE $\theta^{(i)} \gets \theta^{(i-1)} - \alpha \times (\mu_D - E[\mu^{(i)}])$
+%         \ENDFOR
+%     \end{algorithmic}
+%   \end{algorithm}
+% \end{minipage}%
+% \qquad
+% \begin{minipage}[t]{0.45\textwidth}
+%   %\vspace{0pt}
+%   \begin{algorithm}[H]
+%     \caption{Forward Pass} \label{algo:forward_pass_algorithm}
+%     \begin{algorithmic}[1]
+%         \STATE {\bfseries Input:} policy $\pi_{\theta(a|x)}$
+%         \STATE $D^{(0)}(x) \gets P(x_i = x_{initial})$
+%         \FOR{$i\gets 1, n$}
+%             \STATE $D^{(i-1)}(x_{goal}) \gets 0$
+%             \STATE $D^{(i)}(x) \gets D^{(i)}(x) + \pi_{\theta}(a|x') D^{(i-1)}(x')$
+%         \ENDFOR
+%         \STATE $D(x) \gets \sum_{i}D^{(i)}(x)$ 
+%         \STATE \textbf{return} $D(x)$
+%     \end{algorithmic}
+%   \end{algorithm}
+% \end{minipage}
+% \end{figure*}
+
+
+\begin{figure}[ht]
+%\begin{minipage}[t]{0.45\textwidth}
   %\vspace{0pt}  
   \begin{algorithm}[H]
     \caption{CCP-IRL algorithm} \label{algo:ccp_irl_algorithm}
@@ -427,25 +471,8 @@ Above, we have shown how CCPs can be used to estimate a parameterized, both line
         \ENDFOR
     \end{algorithmic}
   \end{algorithm}
-\end{minipage}%
-\qquad
-\begin{minipage}[t]{0.45\textwidth}
-  %\vspace{0pt}
-  \begin{algorithm}[H]
-    \caption{Forward Pass} \label{algo:forward_pass_algorithm}
-    \begin{algorithmic}[1]
-        \STATE {\bfseries Input:} policy $\pi_{\theta(a|x)}$
-        \STATE $D^{(0)}(x) \gets P(x_i = x_{initial})$
-        \FOR{$i\gets 1, n$}
-            \STATE $D^{(i-1)}(x_{goal}) \gets 0$
-            \STATE $D^{(i)}(x) \gets D^{(i)}(x) + \pi_{\theta}(a|x') D^{(i-1)}(x')$
-        \ENDFOR
-        \STATE $D(x) \gets \sum_{i}D^{(i)}(x)$ 
-        \STATE \textbf{return} $D(x)$
-    \end{algorithmic}
-  \end{algorithm}
-\end{minipage}
-\end{figure*}
+%\end{minipage}%
+\end{figure}
 
 
 \subsection{Inverse Reinforcement Learning with CCPs}
@@ -458,8 +485,8 @@ In contrast, the above value function representations (\eqref{eq:exante_inversio
 
 The pseudo-code for CCP-IRL, for the most general case, is given in Algorithm~\ref{algo:ccp_irl_algorithm}.
 The inverse matrix $\mathbf{M}=\left[I-\sum_{a}(\mathbf{S}(a) \lambda) *\left[ \beta \mathbf{T}(a)  \right]\right]^{-1}$ is independent of $\theta$ and is pre-computed once for all iterations (Line 3).
-At every step of the iteration, we calculate the reward for the given $\theta$ (Line 6). Given these, computing $\mathbf{\overline{V}}$ requires simple matrix operations only (Line 7). Thus, we avoid solving the complete MDP problem at every step of the optimization scheme.
-Intuitively, the inverse matrix $\mathbf{M}$ computes the state visitation frequency for each state, weighted by the appropriate discount factor and hence encompasses a large part of calculations involved in MaxEnt-IRL.
+%At every step of the iteration, we calculate the reward for the given $\theta$ (Line 6). Given these, computing $\mathbf{\overline{V}}$ requires simple matrix operations only (Line 7). Thus, we avoid solving the complete MDP problem at every step of the optimization scheme.
+Intuitively, the inverse matrix $\mathbf{M}$ computes the state visitation frequency for each state, weighted by the appropriate discount factor and hence encompasses a large part of calculations involved in MaxEnt-IRL. The ``FORWARD PASS'' in Line 9, is similar to the algorithm in \cite{kitani2012activity}.
 
 Notice that CCP-IRL requires consistent estimates. In the experiments section we will empirically validate these consistency requirements. We show that although the sample complexity for CCP-IRL is higher, it is not significantly worse when compared with MaxEnt-IRL. Additionally, we also note how to calculate the initial CCP estimates. In their simplest form, CCP estimates can be computed directly from the expert trajectories using bin estimators or kernel estimators. However, more sophisticated representations \emph{e.g.}, using deep network representations by behavior cloning can also be used in more complex cases.
 
@@ -476,7 +503,8 @@ In contrast, the main computation in MaxEnt-IRL is solving the same MDP problem 
 Thus, assuming a total of $N$ iterations till convergence and $T$ iterations for each backwards recursion; MaxEnt-IRL takes a total of $O(N\times T \times|A|\times|S|)$ \cite{ziebart_phd}. For CCP-IRL assuming the matrix inversion can be performed with state of the art matrix inversion method, we get a corresponding runtime of $O(|S|^{2.4}+T\times|A|\times|S|)$ for the general case and $O(T\times|A|\times|S|)$ for the linear reward formulation.
 
 We also look at how for large state spaces, we can avoid using matrix inversion and rather estimate the inverse matrix \eqref{eq:exante_inversion} using successive approximations.
-Defining $A \equiv \left(I- \beta \sum_{a}(\mathbf{S}(a) \lambda) *\left[ \mathbf{T}(a)  \right]\right)^{-1}$ we can write it as $A = (I - \beta F)^{-1}$ where $F$ is used as a shorthand for notational convenience. Premultiplying both sides with $(I - \beta F)$ we get $(I - \beta F)\times A = I$ which finally gives us $A = I + \beta F A$. Using this last equation we can estimate the inverse matrix $A$ by successive approximations. Although, from a computational perspective sometimes estimating the inverse matrix can be fast itself, Zeibart \yrcite{ziebart_phd} discusses some of these considerations.
+Defining $A \equiv \left(I- \beta \sum_{a}(\mathbf{S}(a) \lambda) *\left[ \mathbf{T}(a)  \right]\right)^{-1}$ we can write it as $A = (I - \beta F)^{-1}$ where $F$ is used as a shorthand for notational convenience. Premultiplying both sides with $(I - \beta F)$ we get $(I - \beta F)\times A = I$ which finally gives us $A = I + \beta F A$. Using this last equation we can estimate the inverse matrix $A$ by successive approximations.
+%Although, from a computational perspective sometimes estimating the inverse matrix can be fast itself, Zeibart \yrcite{ziebart_phd} discusses some of these considerations.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Experiments}
