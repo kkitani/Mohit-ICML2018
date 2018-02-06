@@ -407,7 +407,7 @@ Since $\mathbf{R}_{\theta}(a) = \mathbf{Z}(a)^T\theta$ for linear parameters, it
 \end{align}
 Again both $\hat{\mathbf{Z}}(a)$ and $\hat{\bm{\epsilon}}(a)$ can be estimated via backwards recursion and is computationally similar to a single policy evaluation algorithm.
 
-In the above, we have shown how CCPs can be used to estimate a parameterized reward function. However, the CCP approach is more general and can also be used to estimate the reward functions \textit{non-parametrically}, conditional on assuming one action reward can be normalized to zero. We discuss these results in the Appendix.
+Above, we have shown how CCPs can be used to estimate a parameterized, both linear and non-linear, reward function. However, the CCP approach is much more general and can also be used to estimate the reward functions \textit{non-parametrically}, conditional on assuming one action reward can be normalized to zero. We discuss these results in the Appendix.
 
 \begin{figure*}[ht]
 \begin{minipage}[t]{0.45\textwidth}
@@ -463,6 +463,8 @@ The inverse matrix $\mathbf{M}=\left[I-\sum_{a}(\mathbf{S}(a) \lambda) *\left[ \
 At every step of the iteration, we calculate the reward for the given $\theta$ (Line 6). Given these, computing $\mathbf{\overline{V}}$ requires simple matrix operations only (Line 7). Thus, we avoid solving the complete MDP problem at every step of the optimization scheme.
 Intuitively, the inverse matrix $\mathbf{M}$ computes the state visitation frequency for each state, weighted by the appropriate discount factor and hence encompasses a large part of calculations involved in MaxEnt-IRL.
 
+Notice that CCP-IRL requires consistent estimates. In the experiments section we will empirically validate these consistency requirements. We show that although the sample complexity for CCP-IRL is higher, it is not significantly worse when compared with MaxEnt-IRL. Additionally, we also note how to calculate the initial CCP estimates. In their simplest form, CCP estimates can be computed directly from the expert trajectories using bin estimators or kernel estimators. However, more sophisticated representations \emph{e.g.}, using deep network representations by behavior cloning can also be used in more complex cases.
+
 % \subsection{Estimating CCPs}
 
 % We also note how to calculate the initial CCP estimates ($\mathbf{S}$). In their simplest form, the initial CCP estimates can be computed directly from $N$ expert trajectories each with $T_i$ time periods:  $\mathcal{D} = \{(a_{it},x_{it})_{t=0}^{T_i}:i=1,\dots,N\}$ in tabular form. An initial maximum likelihood estimate can be computed by maintaining a table over state-action pair occurrences. There is no restriction however on the representational form of CCPs and more complex functions (\emph{e.g.,} Deep Networks) can be used to represent CCPs. 
@@ -471,36 +473,39 @@ Intuitively, the inverse matrix $\mathbf{M}$ computes the state visitation frequ
 
 
 \subsection{Complexity Analysis}
-The main computation in CCP-IRL is to estimate the inverse matrix in \eqref{eq:exante_inversion} or alternately estimate $\tilde{\mathbf{Z}}$ and $\tilde{\mathbf{E}}$ \eqref{eq:choice_specific_Z_tilde} for linear parameters. Both of these are computationally similar to solving the MDP problem \emph{once} \cite{puterman}. 
+The main computation in CCP-IRL is to estimate the inverse matrix in \eqref{eq:exante_inversion} or alternately estimate $\tilde{\mathbf{Z}}$ and $\tilde{\mathbf{E}}$ \eqref{eq:choice_specific_Z_tilde} for linear parameters. Both of these are computationally similar to solving the MDP problem \emph{once}. 
 In contrast, the main computation in MaxEnt-IRL is solving the same MDP problem \emph{repeatedly}.
 Thus, assuming a total of $N$ iterations till convergence and $T$ iterations for each backwards recursion; MaxEnt-IRL takes a total of $O(N\times T \times|A|\times|S|)$ \cite{ziebart_phd}. For CCP-IRL assuming the matrix inversion can be performed with state of the art matrix inversion method, we get a corresponding runtime of $O(|S|^{2.4}+T\times|A|\times|S|)$ for the general case and $O(T\times|A|\times|S|)$ for the linear reward formulation.
 
 We also look at how for large state spaces, we can avoid using matrix inversion and rather estimate the inverse matrix \eqref{eq:exante_inversion} using successive approximations.
-Defining $A \equiv \left(I- \beta \sum_{a}(\mathbf{S}(a) \lambda) *\left[ \mathbf{T}(a)  \right]\right)^{-1}$ we can write it as $A = (I - \beta F)^{-1}$ where $F$ is used as a shorthand for notational convenience. Premultiplying both sides with $(I - \beta F)$ we get $(I - \beta F)\times A = I$ which finally gives us $A = I + \beta F A$. We can now use this last equation to estimate the inverse matrix $A$ by successive approximations. Although, from a computational perspective sometimes estimating the inverse matrix can be fast itself, Zeibart \yrcite{ziebart_phd} discusses some of these considerations.
+Defining $A \equiv \left(I- \beta \sum_{a}(\mathbf{S}(a) \lambda) *\left[ \mathbf{T}(a)  \right]\right)^{-1}$ we can write it as $A = (I - \beta F)^{-1}$ where $F$ is used as a shorthand for notational convenience. Premultiplying both sides with $(I - \beta F)$ we get $(I - \beta F)\times A = I$ which finally gives us $A = I + \beta F A$. Using this last equation we can estimate the inverse matrix $A$ by successive approximations. Although, from a computational perspective sometimes estimating the inverse matrix can be fast itself, Zeibart \yrcite{ziebart_phd} discusses some of these considerations.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Experiments}
 
-In this section we empirically validate, (1) the computational efficiency of CCP-IRL and (2) the underlying assumptions of consistent CCP estimates \emph{i.e.,} we show the data requirement for CCP-IRL.
-We show results for both linear and non-linear reward settings since both of these have been used previously in IRL \cite{ziebart2010modeling, wulfmeier2015maximum}. For the former, we use a car driving simulator, similar to previous works \cite{abbeel2004apprenticeship, klein2012inverse}, while for the latter we choose the Objectworld task as described in \cite{Levine2013}.
+To validate our approach, we illustrate the computational efficiency of CCP-IRL on multiple benchmark problems. For this, we show that CCP-IRL is able to achieve similar performance with \textit{much less} computational time. Further, we also illustrate the underlying assumptions of consistent CCP estimates \emph{i.e.}, we show the data requirement for CCP-IRL. For this, we see how CCP-IRL's performance is affected by the number of expert demonstrations.
 
-\noindent{\textbf{Baselines:}} Since, as shown above, CCP-IRL is closely related to MaxEnt-IRL, we use it as a baseline method to compare our results. 
-Another method, which uses expert policy estimates to solve IRL is, Structured Classification IRL (SCIRL) \cite{klein2012inverse}. However, SCIRL uses these estimates in a max-margin framework, which is fundamentally different from the entropy based IRL approaches, such as, CCP-IRL. Additionally, SCIRL is further limited to \textit{linear reward} formulations only.
-Despite these differences, we use SCIRL as another baseline to show the efficacy of expert CCP estimates and to highlight the generalizability of CCP-IRL to non-linear reward settings.
+% To validate our approach we illustrate, (1) the computational efficiency of CCP-IRL and (2) the underlying assumptions of consistent CCP estimates \emph{i.e.,} we show the data requirement for CCP-IRL. To verify the computational improvement using CCP-IRL, we compare the CPU time. We show that our algorithm is able to achieve similar qualitative and quantitative performance with \textit{much less} computational time. Additionally, to verify the assumptions of consistent CCP estimates we see how CCP-IRL is affected by the number of expert demonstrations.
+
+Since, as shown above, CCP-IRL is generalizable to both linear and non-linear reward parameterizations, we experiment with both of these formulations. For the former, similar to previous works \cite{abbeel2004apprenticeship, klein2012inverse}, we use a car driving simulator. For the latter, we use the Objectworld task as described in \cite{Levine2013}. 
+
+\noindent{\textbf{Baselines:}} As discussed above, CCP-IRL is most closely related to MaxEnt-IRL, hence we use it as a baseline method to compare our results. Also, we use SCIRL as another baseline.
+SCIRL uses expert CCP estimates in a max-margin formulation. Since such a formulation has no notion of the underlying MDP, we believe learning in such an environment reflects the efficacy of CCP estimates. Further, we also use SCIRL to highlight the generalizability of CCP-IRL to non-linear reward formulations, 
 
 \noindent{\textbf{Metrics:}} For comparative analysis, we use negative log likelihood (NLL) \cite{kitani2012activity} and expected value difference (EVD) \cite{levine2011nonlinear} as the evaluation criterion. NLL is a probabilistic comparison metric and evaluates the likelihood of a path under the predicted policy. For a policy ($\pi$), NLL is defined as,
 \begin{align}
 NLL(\pi) = E_{\pi(a|s)}\left[-\log \prod_{t} \pi(a_{t}|s_{t}) \right]
 \end{align}
 % Unfortunately, NLL cannot capture the underlying stochastic nature of the expert policy since it assumes deterministic transitions in expert trajectories.
-As another metric of success, similar to related works \cite{Levine2013, wulfmeier2015maximum}, we use expected value difference (EVD). EVD measures the difference between the optimal and learned policy by comparing the value function obtained with each policy under the \textit{true reward} distribution.
-To verify the computational improvement using CCP-IRL, we observe the CPU time taken by each algorithm. We show that our algorithm is able to achieve similar qualitative and quantitative performance with \textit{much less} computational time.
+% As another metric of success, similar to related works \cite{Levine2013, wulfmeier2015maximum}, we use expected value difference (EVD). 
+In contrast, EVD measures the difference between the optimal and learned policy by comparing the value function obtained with each policy under the \textit{true reward} distribution. Further, to verify the computational advantage of CCP-IRL, we compare the CPU time taken by each algorithm.
+
 
 %For computational analysis all experiments were run on a PC with an Intel Xeon CPU E5-2660 v3 2.60 GHz (10 cores) processor with an NVIDIA TITAN X (Pascal) GPU.
 
 \subsection{Gridworld: Evaluating Linear Rewards} 
 
-We now compare CCP-IRL with the above baselines for linear parameterizations. As noted above, we validate the computational efficiency of CCP-IRL and discuss how CCP-IRL requires consistent CCP estimates, which in turn depend on the amount of expert demonstrations available. For this, we plot the performance of our algorithms against the amount of expert trajectories.
+We now compare CCP-IRL with the above baselines for linear parameterizations. As noted above, we validate the computational efficiency of CCP-IRL and discuss how CCP-IRL requires consistent CCP estimates, which in turn depend on the amount of expert demonstrations available.
 
 % \begin{table}[t]
 % \centering
