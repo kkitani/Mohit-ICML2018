@@ -159,30 +159,30 @@
 
 \section{Non-Parametric Estimation of the Reward Function}
 
-We now detail how the CCP approach can be used to estimate the reward function in a non-parameteric setting. We would like to note that this is one specific instance of the generalizability of the CCP approach. However, as discussed in the main paper, the CCP approach can be extended to many more settings which are beyond the scope of our initial work.
+As discussed in the main paper, the CCP approach generalizes to both parameterized and non-parameterized reward functions. In the main paper we detail both the linear and non-linear formulations for parameterized reward functions. We now detail how the CCP approach can be used to estimate the reward function in a non-parameteric setting.  
 
 To estimate the reward function non-parametrically we assume that shocks are TIEV and a normalization that one action generates a zero reward in every state. 
-We now express the CCP in terms of choice specific value function differences. Recall that the choice specific value function is given by:
+We now express the CCP in terms of choice specific value function differences. Define the choice specific value function for action $a$ as the reward from $a$ and the future value net of the payoff shock:
 \begin{align}
 \begin{split}
-V_a(x_t) &= r_{}(x_t,a)+\beta  \cdot E_{x_{t+1}|a,x_t} \left[ \overline{V}(x_{t+1}) \right] 
+W_a(x_t) &= r_{}(x_t,a)+\beta  \cdot E_{x_{t+1}|a,x_t} \left[ \overline{V}(x_{t+1}) \right] 
 \end{split}
 \end{align}
 The CCP expressed in terms of choice specific values is then:
 \begin{align} 
 \begin{split}
 \sigma(a|x_t)&=\frac{\exp\left(r(x_t,a)+\beta E_{x_{t+1}|x_t,a} \overline{V}(x_{t+1})\right)}{\sum_{a'\in\mathcal{A}} \exp\left(r(x_t,a')+\beta E_{x_{t+1}|x_t,a'} \overline{V}(x_{t+1})\right)}\\
-&=\frac{\exp(V_a(x_t))}{\sum_{a'\in\mathcal{A}} \exp(V_{a'}(x_t))}
+&=\frac{\exp(W_a(x_t))}{\sum_{a'\in\mathcal{A}} \exp(W_{a'}(x_t))}
 \end{split}
 \end{align}
-Denote the action with zero reward by $a_0$. Multiply the CCP by $\frac{\exp(-V_{a_0}(x_t))}{\exp(-V_{a_0}(x_t))}$ which leads to  
+Denote the action with zero reward by $a_0$. Multiply the CCP by $\frac{\exp(-W_{a_0}(x_t))}{\exp(-W_{a_0}(x_t))}$ which leads to  
 \begin{align}
 \begin{split}
-\sigma(a|x_t)&=\frac{\exp(V_a(x_t)-V_{a_0}(x_t))}{\sum_{a'} \exp(V_{a'}(x_t)-V_{a_0}(x_t))}\\
+\sigma(a|x_t)&=\frac{\exp(W_a(x_t)-W_{a_0}(x_t))}{\sum_{a'} \exp(W_{a'}(x_t)-W_{a_0}(x_t))}\\
 &=\frac{\exp(\Delta_a(x_t))}{\sum_{a'} \exp(\Delta_{a'}(x_t))}
 \end{split}
 \end{align}
-where $\Delta_{a'}(x_t)=V_{a'}(x_t)-V_{a_0}(x_t)$
+where $\Delta_{a'}(x_t)=W_{a'}(x_t)-W_{a_0}(x_t)$
 It is clear from the above that choice-specific value function differences between action $a$ and some other action $a'$ are equal to:
 \begin{align}\label{eq:ccp_ratio}
 \begin{split}
@@ -196,11 +196,11 @@ It is clear from the above that choice-specific value function differences betwe
 &=\exp(\Delta_{a'}(x_t))
 \end{split}
 \end{align}
-where the last equality follows from the fact that $\exp(\Delta_{a_0})=\exp(V_{a_0}(x_t)-V_{a_0}(x_t))=\exp(0)=1$.
+where the last equality follows from the fact that $\exp(\Delta_{a_0})=\exp(W_{a_0}(x_t)-W_{a_0}(x_t))=\exp(0)=1$.
 Now we consider the choice specific value function for the base action $a_0$. 
 \begin{align}
 \begin{split}
-V_{a_0}(x_t) &= \beta  \cdot E_{x_{t+1}|a_0,x_t} \left[ \overline{V}(x_{t+1}) \right] 
+W_{a_0}(x_t) &= \beta  \cdot E_{x_{t+1}|a_0,x_t} \left[ \overline{V}(x_{t+1}) \right] 
 \end{split}
 \end{align}
 Recall that:
@@ -213,52 +213,53 @@ Recall that:
 which we can re-write in terms of choice specific value functions as:
 \begin{align} 
 \begin{split}
-\overline{V}(x_t) &=\ln\left[\sum_{a\in\mathcal{A}} \exp\left(V_a(x_t) \right)\right]+\gamma,
+\overline{V}(x_t) &=\ln\left[\sum_{a\in\mathcal{A}} \exp\left(W_a(x_t) \right)\right]+\gamma,
 \end{split}
 \end{align}
-We can then write the above in terms of choice specific value function differences by multiplying and dividing by $\exp(V_{a_0}(x_t))$ inside of the summation
+We can then write the above in terms of choice specific value function differences by multiplying and dividing by $\exp(W_{a_0}(x_t))$ inside of the summation
 \begin{align}
 \begin{split}
-\overline{V}(x_t) &=\ln\left[\sum_{a\in\mathcal{A}} \exp\left(V_a(x_t) \right)\right]+\gamma
-\\&=\ln\left[\sum_{a\in\mathcal{A}} \exp(V_a(x_t))\exp(-V_{a_0}(x_t))\exp(V_{a_0}(x_t))\right]+\gamma
-\\&=\ln\left[\exp(V_{a_0}(x_t))\sum_{a\in\mathcal{A}} \exp(V_a(x_t)-V_{a_0}(x_t))\right]+\gamma\\
-&=V_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(V_a(x_t)-V_{a_0}(x_t))\right]+\gamma
+\overline{V}(x_t) &=\ln\left[\sum_{a\in\mathcal{A}} \exp\left(W_a(x_t) \right)\right]+\gamma
+\\&=\ln\left[\sum_{a\in\mathcal{A}} \exp(W_a(x_t))\exp(-W_{a_0}(x_t))\exp(W_{a_0}(x_t))\right]+\gamma
+\\&=\ln\left[\exp(W_{a_0}(x_t))\sum_{a\in\mathcal{A}} \exp(W_a(x_t)-W_{a_0}(x_t))\right]+\gamma\\
+&=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(W_a(x_t)-W_{a_0}(x_t))\right]+\gamma\\
+&=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(\Delta_a(x_t))\right]+\gamma
 \end{split}
 \end{align}
-And therefore using the ratio of CCPs in 
-\begin{align} 
-\begin{split}
-\overline{V}(x_t) &=V_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(V_a(x_t)-V_{a_0}(x_t))\right]+\gamma\\
-&=V_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(V_a(x_t)-V_{a_0}(x_t))\right]+\gamma\\
-\end{split}
-\end{align}
+% And therefore using the ratio of CCPs in 
+% \begin{align} 
+% \begin{split}
+% \overline{V}(x_t) &=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(W_a(x_t)-W_{a_0}(x_t))\right]+\gamma\\
+% &=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(W_a(x_t)-W_{a_0}(x_t))\right]+\gamma\\
+% \end{split}
+% \end{align}
 Using the CCP ratio from (\ref{eq:ccp_ratio}), the above can be expressed as:
 \begin{align} 
 \begin{split}
-\overline{V}(x_t) &=V_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(V_a(x_t)-V_{a_0}(x_t))\right]+\gamma\\
-&=V_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \frac{\sigma(a|x_t)}{\sigma(a_0|x_t)}\right]+\gamma\\
-&=V_{a_0}(x_t)+\ln\left[1+\sum_{a\in\mathcal{A}\setminus a_0} \frac{\sigma(a|x_t)}{\sigma(a_0|x_t)}\right]+\gamma
+\overline{V}(x_t) &=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(\Delta_a(x_t))\right]+\gamma\\
+&=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \frac{\sigma(a|x_t)}{\sigma(a_0|x_t)}\right]+\gamma\\
+&=W_{a_0}(x_t)+\ln\left[1+\sum_{a\in\mathcal{A}\setminus a_0} \frac{\sigma(a|x_t)}{\sigma(a_0|x_t)}\right]+\gamma
 \end{split}
 \end{align}
 the value function for the base action $a_0$ can then be expressed as:
 \begin{align}
 \begin{split}
-V_{a_0}(x_t)&=
+W_{a_0}(x_t)&=
  \beta E_{x_{t+1}|x_t,a_0}
-\Bigg[V_{a_0}(x_{t+1}) \\
+\Bigg[W_{a_0}(x_{t+1}) \\
 &\left. +\ln\left[1+ \sum_{a'\in\mathcal{A}\setminus a_0}\frac{\sigma(a'|x_{t+1})}{\sigma(a_0|x_{t+1})}\right]+\gamma\right]
 \end{split}
 \end{align}
-The only unknown in the above is $V_{a_0}$ which can be solved for using fixed point iteration or matrix inversion. The value function for every state can then be estimated as:
+The only unknown in the above is $W_{a_0}$ which can be solved for using fixed point iteration or matrix inversion. The value function for every state can then be estimated as:
 \begin{eqnarray}
-V_a(x_t)=\ln(\sigma(a|x_t))-\ln(\sigma(a_0|x_t))+V_{a_0}(x_t).\label{eq:v_backout}
+W_a(x_t)=\ln(\sigma(a|x_t))-\ln(\sigma(a_0|x_t))+W_{a_0}(x_t).\label{eq:v_backout}
 \end{eqnarray}
 It is then possible to estimate the reward function directly:
 \begin{align}
 \begin{split}
 r(a,x_t)
-&=V_a(x_t)- \beta E_{x_{t+1}|x_t,a}\Bigg\{
-V_{a_0}(x_{t+1})
+&=W_a(x_t)- \beta E_{x_{t+1}|x_t,a}\Bigg\{
+W_{a_0}(x_{t+1})
 \\ &\left.\qquad +
 \ln
   \left(
@@ -295,7 +296,6 @@ V_{a_0}(x_{t+1})
 % \ln\sigma(a|x_t)-\ln \sigma(a'|x_t)=\left(r(x_t,a)+\beta E_{x_{t+1}|x_t,a} \overline{V}(x_{t+1})\right)-\left(r(x_t,a')+\beta E_{x_{t+1}|x_t,a'} \overline{V}(x_{t+1})\right)
 % \end{split}
 % \end{align}
-
 
 % \bibliography{references}
 % \bibliographystyle{icml2018}
