@@ -216,18 +216,16 @@ Moreover, the CCP approach is applicable to situations with continuous state or 
 
 \section{Preliminaries}
 
-In this section, we first introduce the MDP formulation as used in the econometrics literature under the name "Dynamic Discrete Choice Model". Following this, we show how the optimality equation is formulated under these assumptions, and how the resulting optimization problems can be related to traditional IRL algorithms.
+In this section, we first introduce the MDP formulation as used in the econometrics literature under the name "Dynamic Discrete Choice Model". Following this, we show how the optimality equation is formulated under this framework, and how the resulting optimization problems relate to traditional IRL algorithms.
 
 \subsection{Dynamic Discrete Choice Model}
 
 A dynamic discrete choice (DDC) model (\emph{i.e.}, a discrete Markov decision process with action shocks) is defined as a tuple $(\mathcal{X,A}, T,r,\mathcal{E},F)$. 
-We assume a discrete state space, to avoid technical machinery out of the scope of this paper, although this is not strictly necessary.
-$\mathcal{X}$ is a countable set of states with a cardinality of $|\mathcal{X}|$. $\mathcal{A}$ is a finite set of actions with cardinality $|\mathcal{A}|$. $T$ is the transition function where $T(x'|x,a)$ is the probability of reaching state $x'$ given current state $x$ and action $a$. The reward function $r$ is a mapping $r:\mathcal{A}\times\mathcal{X}\rightarrow \mathbb{R}$.
+We assume a discrete state space, to avoid technical machinery out of the scope of this paper, although this is not strictly necessary \cite{hansen1982generalized}.
+$\mathcal{X}$ is a countable set of states with a cardinality of $|\mathcal{X}|$. $\mathcal{A}$ is a finite set of actions with cardinality $|\mathcal{A}|$. $T$ is the transition function where $T(x'|x,a)$ is the probability of reaching state $x'$ given current state $x$ and action $a$. The payoff function, $r$ is a mapping $r:\mathcal{A}\times\mathcal{X}\rightarrow \mathbb{R}$.
 
-Different from MDPs typically used in RL, each action also has a "payoff-shock" associated with it that enters payoffs additively.
-The motivation for this perturbation originates from the discrete choice literature \cite{mcfadden1973conditional} on static models as a way of reconciling why numerous economic agents with identical observed characteristics make different decisions to each other. Rather than assuming the agents are indifferent between all the decisions,
-%that at least one of them takes (which might cover the choice set)
-an alternative assumption is that there is an additional characteristic pertinent for decision making that the modeller does not observe. The simplest of way of modeling this unobserved characteristic is to treat it as an independent, identically distributed random variable, one for each element in the choice set. Adding a payoff-shock to each choice at every decision node in DDC models is the dynamic analogue to escape a similar lacuna.
+Different from MDPs typically used in Reinforcement Learning (RL), each action also has a "payoff-shock" associated with it that enters payoffs additively.
+The motivation for this perturbation originates from the discrete choice literature \cite{mcfadden1973conditional} on static models as a way of reconciling why numerous economic agents with identical observed characteristics make different decisions to each other. Rather than assuming the agents are indifferent between all the decisions, an alternative assumption is that there is an additional characteristic pertinent for decision making that the modeller does not observe. The simplest of way of modeling this unobserved characteristic is to treat it as an i.i.d random variable, one for each element in the choice set. Adding a payoff-shock to each choice at every decision node in DDC models is the dynamic analogue to escape a similar lacuna.
 This vector of shocks is denoted $\vec{\epsilon} = [ \epsilon_{1} \cdots \epsilon_{|\mathcal{A}|} ]$ and $\vec{\epsilon}\in \mathbb{R}^{|\mathcal{A}|}$. Total rewards for action $a \in \mathcal{A}$ in state $x \in \mathcal{X}$ are therefore given by:
 \begin{eqnarray}
 r(a,x)+\epsilon_a
