@@ -492,10 +492,7 @@ Since, as shown above, CCP-IRL is generalizable to both linear and non-linear re
 \noindent{\textbf{Baselines:}} As discussed above, CCP-IRL is most closely related to MaxEnt-IRL, hence we use it as a baseline method to compare our results. Also, we use SCIRL as another baseline.
 SCIRL uses expert CCP estimates in a max-margin formulation. Since such a formulation has no notion of the underlying MDP, we believe learning in such an environment reflects the efficacy of CCP estimates. Further, we also use SCIRL to highlight the generalizability of CCP-IRL to non-linear reward formulations, 
 
-\noindent{\textbf{Metrics:}} For comparative analysis, we use negative log likelihood (NLL) \cite{kitani2012activity} and expected value difference (EVD) \cite{levine2011nonlinear} as the evaluation criterion. NLL is a probabilistic comparison metric and evaluates the likelihood of a path under the predicted policy. For a policy ($\pi$), NLL is defined as,
-\begin{align}
-NLL(\pi) = E_{\pi(a|s)}\left[-\log \prod_{t} \pi(a_{t}|s_{t}) \right]
-\end{align}
+\noindent{\textbf{Metrics:}} For comparative analysis, we use negative log likelihood (NLL) \cite{kitani2012activity} and expected value difference (EVD) \cite{levine2011nonlinear} as the evaluation criterion. NLL is a probabilistic comparison metric and evaluates the likelihood of a path under the predicted policy. For a policy $\pi$, NLL is defined as, $NLL(\pi) = E_{\pi(a|s)}\left[-\log \prod_{t} \pi(a_{t}|s_{t}) \right]$.
 % Unfortunately, NLL cannot capture the underlying stochastic nature of the expert policy since it assumes deterministic transitions in expert trajectories.
 % As another metric of success, similar to related works \cite{Levine2013, wulfmeier2015maximum}, we use expected value difference (EVD). 
 In contrast, EVD measures the difference between the optimal and learned policy by comparing the value function obtained with each policy under the \textit{true reward} distribution. Further, to verify the computational advantage of CCP-IRL, we compare the CPU time taken by each algorithm.
@@ -560,11 +557,6 @@ $10^6$ & 197399.03 & 16982.17 & $\mathbf{12}\times$ \\
 %     \caption{Computation time (in seconds and averaged over multiple runs) comparison between MaxEnt and CCP for Gridworld with gridsize of 32. Each experiment was run for 50 iterations. }
 %     \label{fig:img_gridworld_maxent_vs_ccp_time_discount}
 % \end{figure}
-
-Similar to previous works \cite{abbeel2004apprenticeship, klein2012inverse}, we use a car driving simulator in a linear reward setting. The goal in this environment is to drive on a multi-lane highway without crashing. The agent's car can either move left or right, accelerate, decelerate or keep a constant speed. We use a hand tuned reward, which penalizes off-road driving and collisions while favoring high speed. 
-
-For our reward feature vector, we use a discretization of the state space. In the simplest case, similar to, Klein \emph{et al.} \yrcite{klein2012inverse}, we parameterize the state space using 9 horizontal positions for the user's car, 3 horizontal and 9 vertical positions for the closest traffic's car and 3 speeds. This gives us a feature vector of size $\mathcal{R}^{729}$. To scale this representation to larger MDPs, we increase each of the above MDP parameters, such as, car speed, number of lanes \emph{etc.}. However, a one-hot feature representation, as used in Klein \emph{et al.} does not scale to such large MDPs. Hence for large MDPs, we group adjacent lanes and closest traffic car's position together, to keep the feature vector representation compact.
-
 \begin{figure}[t]
 \centering
   \begin{tabular}{cc}
@@ -573,12 +565,18 @@ For our reward feature vector, we use a discretization of the state space. In th
     \end{tabular}
     \caption{Results for Highway MDP with 5,000 states. Left: Minimum NLL results with varying number of trajectories. Right: Expected Value Difference results. As seen the sample complexity of CCP-IRL is very close to SCIRL and not much worse than MaxEnt-IRL.}
     \label{fig:img_maxent_vs_ccp_gridworld_macro_cell}
+    \vspace{-0.2cm}
 \end{figure}
+
+
+Similar to previous works \cite{abbeel2004apprenticeship, klein2012inverse}, we use a car driving simulator for linear reward setting. The goal in this environment is to drive on a multi-lane highway without crashing. The agent's car can either move left or right, accelerate, decelerate or keep a constant speed. We use a hand tuned reward, which penalizes off-road driving and collisions while favoring high speed. 
+
+For our reward feature vector, we use a discretization of the state space. In the simplest case, similar to, Klein \emph{et al.} \yrcite{klein2012inverse}, we parameterize the state space using 9 horizontal positions for the user's car, 3 horizontal and 9 vertical positions for the closest traffic's car and 3 speeds. This gives us a feature vector of size $\mathcal{R}^{729}$. To scale this representation to larger MDPs, we increase each of the above MDP parameters, such as, car speed, number of lanes \emph{etc.}. However, a one-hot feature representation, as used in Klein \emph{et al.} does not scale to such large MDPs. Hence for large MDPs, we group adjacent lanes and closest traffic car's position together, to keep the feature vector representation compact.
 
 First, we analyze the performance of CCP-IRL given different amounts of expert trajectories.
 Figure \ref{fig:img_maxent_vs_ccp_gridworld_macro_cell} compares the NLL and EVD results against increasing number of expert trajectories.
 As seen above, all algorithms show poor performance given very few trajectories (< 20 trajectories).
-However, with moderate number of trajectories ($\sim$30) all algorithms approach expert behavior, although, CCP-IRL requires slightly more number of trajectories as compared to MaxEnt-IRL. This is expected given that CCP-IRL requires consistent CCP estimates to match expert behavior. However, interestingly, SCIRL requires less data compared to both MaxEnt-IRL and CCP-IRL. We believe one reason for this is that SCIRL is solving a max-margin problem to directly imitate the expert, this can often be easier for simple MDPs. 
+However, with moderate number of trajectories ($\sim$30) all algorithms approach expert behavior, although, CCP-IRL requires slightly more number of trajectories as compared to MaxEnt-IRL. This is expected given that CCP-IRL requires consistent CCP estimates to match expert behavior. However, interestingly, SCIRL requires less data compared to both MaxEnt-IRL and CCP-IRL. We believe this is because SCIRL is solving a max-margin problem to directly imitate the expert, this can often be easier for simple MDPs. However, this does reflect the efficacy of CCPs even when used in an MDP agnostic setting.
 
 We also verify the computational advantage for CCP-IRL across large state spaces ($|S| \in \{10^3, 10^6\}$) in Table~\ref{table:table_results_macro_cells}. CCP-IRL is almost 10$\times$ faster than MaxEnt-IRL, across both large and small state spaces. This gives a huge advantage when running on large spaces since MaxEnt-IRL is prohibitively expensive in such settings. Also, since SCIRL follows a completely different algorithmic approach to IRL, we do not directly compare the computation time for SCIRL with entropy based IRL approaches. However, we do note that in preliminary experiments we found SCIRL to be at least $2\times$ as fast as CCP-IRL.
 %However, SCIRL is much faster than both CCP-IRL and MaxEnt-IRL. This is because rather than solving a complex maximum entropy problem, SCIRL solves a multi-class classification problem using the max-margin approach. Although, SCIRL is able to infer the appropriate reward in our setting, such structured margin classifiers suffer from other drawbacks as discussed in \cite{ziebart2010modeling}. Additionally, as we show below, SCIRL works for linear reward parameterization only, which greatly reduces its applicability in complex scenarios. Despite this, the efficacy of the SCIRL and CCP-IRL reflect that, combining CCP estimates from expert trajectories with the MDP structure can significantly boost IRL performance without sacrificing the sample complexity too much. 
