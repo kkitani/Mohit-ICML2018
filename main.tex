@@ -348,10 +348,8 @@ Now, defining the expected shock given that action $a$ is optimal as $\tilde{\ep
 & \qquad +\beta \sum_{x_{t+1}\in\mathcal{X}} T(x_{t+1}|x_t,a) \overline{V}(x_{t+1})\Big]
 \end{split}
 \end{align}
-\textcolor{blue}{
 Hotz and Miller \yrcite{hotz} further show that $\tilde{\epsilon}(a|x_t)$ depends on CCPs and distribution of $\epsilon$ only.
 To see this, notice that CCPs can be expressed as function of differences in choice specific value function, since action $a$ being optimal implies $V_a(x_t)- V_{a'}(x_t)\geq 0 \quad\forall a'\in\mathcal{A} - \{a\}$. The cornerstone of Hotz and Miller's approach is to show that this mapping between CCPs and choice specific value function is \emph{invertible}. Using this inverse mapping and assuming TIEV distribution for $\epsilon$, we get $\tilde{\epsilon}(a|x_t) = \gamma - \log \sigma(a|x_t)$.
-}
 
 Using this result we will now write a closed form solution for $\overline{V}(x_t)$. For this we will first stack the \emph{ex-ante} value function over all states. Doing this we get,
 \begin{align} \label{eq:exantebellman_4}
@@ -504,9 +502,7 @@ Defining $A \equiv \left(I- \beta \sum_{a}(\mathbf{S}(a) \lambda) *\left[ \mathb
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Experiments} \label{experiments}
 
-\textcolor{blue}{
 To illustrate the computational efficiency of CCP-IRL we experiment on multiple benchmark problems. We show that CCP-IRL is able to match expert performance with \textit{much less} computational time. Further, as noted before, we also examine the underlying assumptions of consistent CCP estimates. For this, we see how CCP-IRL's performance is affected by the number of expert demonstrations.
-}
 % To validate our approach we illustrate, (1) the computational efficiency of CCP-IRL and (2) the underlying assumptions of consistent CCP estimates \emph{i.e.,} we show the data requirement for CCP-IRL. To verify the computational improvement using CCP-IRL, we compare the CPU time. We show that our algorithm is able to achieve similar qualitative and quantitative performance with \textit{much less} computational time. Additionally, to verify the assumptions of consistent CCP estimates we see how CCP-IRL is affected by the number of expert demonstrations.
 
 To show the generalizability of CCP-IRL to both linear and non-linear parameterizations we experiment with both of these formulations. For each formulation we use benchmark tasks used previously in the IRL literature \cite{klein2012inverse, Levine2013}. For the former, similar to previous works \cite{abbeel2004apprenticeship, klein2012inverse}, we use a car driving simulator. While for the latter, we use the Objectworld task as described in \cite{Levine2013}. 
@@ -692,10 +688,10 @@ Since the CCP approach clarifies the necessary assumptions, it might be necessar
 
 The CCP approach is also used successfully in multi-agent settings where strategic situations generally lead to multiple equilibria. Any IRL algorithm that \emph{solves} the DP numerically will require an ad-hoc equilibrium selection rule. Moreover, there is no data-driven way to ensure the selection rule is identifying the equilibrium in the data. It is therefore highly likely that an IRL algorithm can match the data by selecting the wrong reward parameters and the wrong equilibrium. In other words, matching the data is not enough to guarantee the accuracy of measurements. However, with CCPs and a dataset on a single path of play, it is possible to estimate rewards consistently. The data allow us to directly estimate the policy functions of the equilibrium in the data. The CCP representations of the value function therefore are for the correct equilibrium. It is then possible to correctly estimate the reward function, without having to solve the game and to correctly select the equilibrium in the data \cite{bajari_discrete_games,aguirregabiria,pesendorfer,pese}.
 
-\textcolor{blue}{
+Although, in this work we focus on discrete domains, the CCP approach has been applied to situations with continuous state or action spaces \cite{altuug1998effect}. Alternately, past work in IRL literature has also focused on scaling MaxEnt-IRL to high dimensional continuous spaces. To achieve this, most algorithms use local approximation to estimate the partition function in MaxEnt-IRL. Using local approximations requires giving up on global optimality, but allows the algorithms to scale to high dimensional continuous domains \cite{levine2012continuous, kalakrishnan2013learning, finn2016guided}. Since such approximations are necessary to scale IRL to high dimensional control spaces in robotics, we are currently working on combining these approximations with the CCP approach. 
+
 Also, the CCP framework opens up the possibility of estimating rewards in non-stationary environments. The CCP framework leads to computational simplifications in settings where actions terminate the decision problem or a sequence of actions ``reset" the future state distributions \cite{arcidiacono2014nonstationary}. This allows us to represent future values as arbitrary sequences of future CCPs.
 Applying these approximations to non-stationary problems in robotics \cite{ma2017forecasting} is an important direction to pursue.
-}
 
 %Finally, we look at the data requirement for CCP-IRL. A complete theoretical analysis of sample complexity of CCPs is beyond the scope of our initial work. However, we would like to refer the reader to Aguirregabiria and Mira \yrcite{aguirregabiria2002swapping} which discuss some sample properties of CCP estimators. More importantly, the authors show that one-step CCP estimators (such as CCP-IRL) can have large bias with insufficient data.  To reduce this bias they introduce a successive iteration procedure which results in a sequence of estimators. They further show that this iteration until convergence will realize the original MaxEnt-IRL estimator.
 
@@ -706,7 +702,6 @@ Applying these approximations to non-stationary problems in robotics \cite{ma201
 
 \bibliography{references}
 \bibliographystyle{icml2018}
-
 
 
 
@@ -1018,146 +1013,146 @@ Applying these approximations to non-stationary problems in robotics \cite{ma201
 
 % Notice that to estimate $\mathbf{W}_{\theta}$ using \eqref{eq:w_inversion_non_linear} we need to calculate $\mathbf{z}(a, \theta)$ at every step of the iteration. But the inverse matrix $\left( \mathbf{I} - \beta \sum_{a}\mathbf{P}(a) \cdot \mathbf{T}_{x'|x}(a) \right)^{-1}$ is independent of $\theta$ and hence can be pre-computed once for all iterations. This inverse matrix computes the state visitation frequency for each state, weighted by the appropriate discount factor and hence encompasses a large part of calculations involved in MaxEnt \cite{ziebart_phd}. 
 % Thus, similar to the linear case we can efficiently estimate $W_{\theta}$ for different values of $\theta$ by simple matrix computations.
-\begin{appendix}
-\section{Non-Parametric Estimation of the Reward Function}
+% \begin{appendix}
+% \section{Non-Parametric Estimation of the Reward Function}
 
-We now detail how the CCP approach can be used to estimate the reward function in a non-parameteric setting. We would like to note that this is one specific instance of the generalizability of the CCP approach. However, as discussed in the main paper it can be extended to many more settings which are beyond the scope of our initial work.
+% We now detail how the CCP approach can be used to estimate the reward function in a non-parameteric setting. We would like to note that this is one specific instance of the generalizability of the CCP approach. However, as discussed in the main paper it can be extended to many more settings which are beyond the scope of our initial work.
 
-To estimate the reward function non-parametrically we assume that shocks are TIEV and a normalization that one action generates a zero reward in every state. 
-We now express the CCP in terms of choice specific value function differences. Define the choice specific value function for action $a$ as the reward from $a$ and the future value net of the payoff shock:
-\begin{align}
-\begin{split}
-W_a(x_t) &= r_{}(x_t,a)+\beta  \cdot E_{x_{t+1}|a,x_t} \left[ \overline{V}(x_{t+1}) \right] 
-\end{split}
-\end{align}
-The CCP expressed in terms of choice specific values is then:
-\begin{align} 
-\begin{split}
-\sigma(a|x_t)&=\frac{\exp\left(r(x_t,a)+\beta E_{x_{t+1}|x_t,a} \overline{V}(x_{t+1})\right)}{\sum_{a'\in\mathcal{A}} \exp\left(r(x_t,a')+\beta E_{x_{t+1}|x_t,a'} \overline{V}(x_{t+1})\right)}\\
-&=\frac{\exp(W_a(x_t))}{\sum_{a'\in\mathcal{A}} \exp(W_{a'}(x_t))}
-\end{split}
-\end{align}
-Denote the action with zero reward by $a_0$. Multiply the CCP by $\frac{\exp(-W_{a_0}(x_t))}{\exp(-W_{a_0}(x_t))}$ which leads to  
-\begin{align}
-\begin{split}
-\sigma(a|x_t)&=\frac{\exp(W_a(x_t)-W_{a_0}(x_t))}{\sum_{a'} \exp(W_{a'}(x_t)-W_{a_0}(x_t))}\\
-&=\frac{\exp(\Delta_a(x_t))}{\sum_{a'} \exp(\Delta_{a'}(x_t))}
-\end{split}
-\end{align}
-where $\Delta_{a'}(x_t)=W_{a'}(x_t)-W_{a_0}(x_t)$
-It is clear from the above that choice-specific value function differences between action $a$ and some other action $a'$ are equal to:
-\begin{align}\label{eq:ccp_ratio}
-\begin{split}
-\frac{\sigma(a'|x_t)}{\sigma(a_0|x_t)}&=
-\left[
-\frac
-  {\exp(\Delta_{a'}(x_t))}
-  {\sum_{a''} \exp(\Delta_{a''}(x_t))}
-\right]
-\left[\frac{\exp(\Delta_{a_0}(x_t))}{\sum_{a''} \exp(\Delta_{a''}(x_t))}\right]^{-1}\\
-&=\exp(\Delta_{a'}(x_t))
-\end{split}
-\end{align}
-where the last equality follows from the fact that $\exp(\Delta_{a_0})=\exp(W_{a_0}(x_t)-W_{a_0}(x_t))=\exp(0)=1$.
-Now we consider the choice specific value function for the base action $a_0$. 
-\begin{align}
-\begin{split}
-W_{a_0}(x_t) &= \beta  \cdot E_{x_{t+1}|a_0,x_t} \left[ \overline{V}(x_{t+1}) \right] 
-\end{split}
-\end{align}
-Recall that:
-\begin{align} 
-\begin{split}
-\overline{V}(x_t) &=\ln\bigg[\sum_{a\in\mathcal{A}} \exp\big(r(x_t,a)
-\\&\qquad+\beta \cdot E_{x_{t+1}|a,x_t} \left[ \overline{V}(x_{t+1}) \right] \big)\bigg]  +\gamma,
-\end{split}
-\end{align}
-which we can re-write in terms of choice specific value functions as:
-\begin{align} 
-\begin{split}
-\overline{V}(x_t) &=\ln\left[\sum_{a\in\mathcal{A}} \exp\left(W_a(x_t) \right)\right]+\gamma,
-\end{split}
-\end{align}
-We can then write the above in terms of choice specific value function differences by multiplying and dividing by $\exp(W_{a_0}(x_t))$ inside of the summation
-\begin{align}
-\begin{split}
-\overline{V}(x_t) &=\ln\left[\sum_{a\in\mathcal{A}} \exp\left(W_a(x_t) \right)\right]+\gamma
-\\&=\ln\left[\sum_{a\in\mathcal{A}} \exp(W_a(x_t))\exp(-W_{a_0}(x_t))\exp(W_{a_0}(x_t))\right]+\gamma
-\\&=\ln\left[\exp(W_{a_0}(x_t))\sum_{a\in\mathcal{A}} \exp(W_a(x_t)-W_{a_0}(x_t))\right]+\gamma\\
-&=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(W_a(x_t)-W_{a_0}(x_t))\right]+\gamma\\
-&=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(\Delta_a(x_t))\right]+\gamma
-\end{split}
-\end{align}
-% And therefore using the ratio of CCPs in 
+% To estimate the reward function non-parametrically we assume that shocks are TIEV and a normalization that one action generates a zero reward in every state. 
+% We now express the CCP in terms of choice specific value function differences. Define the choice specific value function for action $a$ as the reward from $a$ and the future value net of the payoff shock:
+% \begin{align}
+% \begin{split}
+% W_a(x_t) &= r_{}(x_t,a)+\beta  \cdot E_{x_{t+1}|a,x_t} \left[ \overline{V}(x_{t+1}) \right] 
+% \end{split}
+% \end{align}
+% The CCP expressed in terms of choice specific values is then:
 % \begin{align} 
 % \begin{split}
-% \overline{V}(x_t) &=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(W_a(x_t)-W_{a_0}(x_t))\right]+\gamma\\
+% \sigma(a|x_t)&=\frac{\exp\left(r(x_t,a)+\beta E_{x_{t+1}|x_t,a} \overline{V}(x_{t+1})\right)}{\sum_{a'\in\mathcal{A}} \exp\left(r(x_t,a')+\beta E_{x_{t+1}|x_t,a'} \overline{V}(x_{t+1})\right)}\\
+% &=\frac{\exp(W_a(x_t))}{\sum_{a'\in\mathcal{A}} \exp(W_{a'}(x_t))}
+% \end{split}
+% \end{align}
+% Denote the action with zero reward by $a_0$. Multiply the CCP by $\frac{\exp(-W_{a_0}(x_t))}{\exp(-W_{a_0}(x_t))}$ which leads to  
+% \begin{align}
+% \begin{split}
+% \sigma(a|x_t)&=\frac{\exp(W_a(x_t)-W_{a_0}(x_t))}{\sum_{a'} \exp(W_{a'}(x_t)-W_{a_0}(x_t))}\\
+% &=\frac{\exp(\Delta_a(x_t))}{\sum_{a'} \exp(\Delta_{a'}(x_t))}
+% \end{split}
+% \end{align}
+% where $\Delta_{a'}(x_t)=W_{a'}(x_t)-W_{a_0}(x_t)$
+% It is clear from the above that choice-specific value function differences between action $a$ and some other action $a'$ are equal to:
+% \begin{align}\label{eq:ccp_ratio}
+% \begin{split}
+% \frac{\sigma(a'|x_t)}{\sigma(a_0|x_t)}&=
+% \left[
+% \frac
+%   {\exp(\Delta_{a'}(x_t))}
+%   {\sum_{a''} \exp(\Delta_{a''}(x_t))}
+% \right]
+% \left[\frac{\exp(\Delta_{a_0}(x_t))}{\sum_{a''} \exp(\Delta_{a''}(x_t))}\right]^{-1}\\
+% &=\exp(\Delta_{a'}(x_t))
+% \end{split}
+% \end{align}
+% where the last equality follows from the fact that $\exp(\Delta_{a_0})=\exp(W_{a_0}(x_t)-W_{a_0}(x_t))=\exp(0)=1$.
+% Now we consider the choice specific value function for the base action $a_0$. 
+% \begin{align}
+% \begin{split}
+% W_{a_0}(x_t) &= \beta  \cdot E_{x_{t+1}|a_0,x_t} \left[ \overline{V}(x_{t+1}) \right] 
+% \end{split}
+% \end{align}
+% Recall that:
+% \begin{align} 
+% \begin{split}
+% \overline{V}(x_t) &=\ln\bigg[\sum_{a\in\mathcal{A}} \exp\big(r(x_t,a)
+% \\&\qquad+\beta \cdot E_{x_{t+1}|a,x_t} \left[ \overline{V}(x_{t+1}) \right] \big)\bigg]  +\gamma,
+% \end{split}
+% \end{align}
+% which we can re-write in terms of choice specific value functions as:
+% \begin{align} 
+% \begin{split}
+% \overline{V}(x_t) &=\ln\left[\sum_{a\in\mathcal{A}} \exp\left(W_a(x_t) \right)\right]+\gamma,
+% \end{split}
+% \end{align}
+% We can then write the above in terms of choice specific value function differences by multiplying and dividing by $\exp(W_{a_0}(x_t))$ inside of the summation
+% \begin{align}
+% \begin{split}
+% \overline{V}(x_t) &=\ln\left[\sum_{a\in\mathcal{A}} \exp\left(W_a(x_t) \right)\right]+\gamma
+% \\&=\ln\left[\sum_{a\in\mathcal{A}} \exp(W_a(x_t))\exp(-W_{a_0}(x_t))\exp(W_{a_0}(x_t))\right]+\gamma
+% \\&=\ln\left[\exp(W_{a_0}(x_t))\sum_{a\in\mathcal{A}} \exp(W_a(x_t)-W_{a_0}(x_t))\right]+\gamma\\
 % &=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(W_a(x_t)-W_{a_0}(x_t))\right]+\gamma\\
+% &=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(\Delta_a(x_t))\right]+\gamma
 % \end{split}
 % \end{align}
-Using the CCP ratio from (\ref{eq:ccp_ratio}), the above can be expressed as:
-\begin{align} 
-\begin{split}
-\overline{V}(x_t) &=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(\Delta_a(x_t))\right]+\gamma\\
-&=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \frac{\sigma(a|x_t)}{\sigma(a_0|x_t)}\right]+\gamma\\
-&=W_{a_0}(x_t)+\ln\left[1+\sum_{a\in\mathcal{A}\setminus a_0} \frac{\sigma(a|x_t)}{\sigma(a_0|x_t)}\right]+\gamma
-\end{split}
-\end{align}
-the value function for the base action $a_0$ can then be expressed as:
-\begin{align}
-\begin{split}
-W_{a_0}(x_t)&=
- \beta E_{x_{t+1}|x_t,a_0}
-\Bigg[W_{a_0}(x_{t+1}) \\
-&\left. +\ln\left[1+ \sum_{a'\in\mathcal{A}\setminus a_0}\frac{\sigma(a'|x_{t+1})}{\sigma(a_0|x_{t+1})}\right]+\gamma\right]
-\end{split}
-\end{align}
-The only unknown in the above is $W_{a_0}$ which can be solved for using fixed point iteration or matrix inversion. The value function for every state can then be estimated as:
-\begin{eqnarray}
-W_a(x_t)=\ln(\sigma(a|x_t))-\ln(\sigma(a_0|x_t))+W_{a_0}(x_t).\label{eq:v_backout}
-\end{eqnarray}
-It is then possible to estimate the reward function directly:
-\begin{align}
-\begin{split}
-r(a,x_t)
-&=W_a(x_t)- \beta E_{x_{t+1}|x_t,a}\Bigg\{
-W_{a_0}(x_{t+1})
-\\ &\left.\qquad +
-\ln
-  \left(
-    1 + \sum_{a'\in\mathcal{A}\setminus a_0}\frac{\sigma(a|x_{t+1})}{\sigma(a_0|x_{t+1})}
-  \right)
-\right\}.
-\end{split}
-\end{align}
-
-% \newpage
-% \begin{align} \label{eq:ccps}
+% % And therefore using the ratio of CCPs in 
+% % \begin{align} 
+% % \begin{split}
+% % \overline{V}(x_t) &=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(W_a(x_t)-W_{a_0}(x_t))\right]+\gamma\\
+% % &=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(W_a(x_t)-W_{a_0}(x_t))\right]+\gamma\\
+% % \end{split}
+% % \end{align}
+% Using the CCP ratio from (\ref{eq:ccp_ratio}), the above can be expressed as:
+% \begin{align} 
 % \begin{split}
-% \sigma(a|x_t)=\frac{\exp\left(r(x_t,a)+\beta E_{x_{t+1}|x_t,a} \overline{V}(x_{t+1})\right)}{\sum_{a'\in\mathcal{A}} \exp\left(r(x_t,a')+\beta E_{x_{t+1}|x_t,a'} \overline{V}(x_{t+1})\right)}
+% \overline{V}(x_t) &=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \exp(\Delta_a(x_t))\right]+\gamma\\
+% &=W_{a_0}(x_t)+\ln\left[\sum_{a\in\mathcal{A}} \frac{\sigma(a|x_t)}{\sigma(a_0|x_t)}\right]+\gamma\\
+% &=W_{a_0}(x_t)+\ln\left[1+\sum_{a\in\mathcal{A}\setminus a_0} \frac{\sigma(a|x_t)}{\sigma(a_0|x_t)}\right]+\gamma
 % \end{split}
 % \end{align}
-
-% \begin{align} \label{eq:exante_inversion}
+% the value function for the base action $a_0$ can then be expressed as:
+% \begin{align}
 % \begin{split}
-% \overline{\mathbf{V}} &=\left[I-\sum_{a}(\mathbf{S}(a) \lambda) *\left[ \beta \mathbf{T}(a)  \right]\right]^{-1} \\
-% & \qquad \times \left[\sum_{a}\mathbf{S}(a) *\left[ \mathbf{R}_{\theta}(a)+\tilde{\bm{\epsilon}}(a)\right]\right]
+% W_{a_0}(x_t)&=
+%  \beta E_{x_{t+1}|x_t,a_0}
+% \Bigg[W_{a_0}(x_{t+1}) \\
+% &\left. +\ln\left[1+ \sum_{a'\in\mathcal{A}\setminus a_0}\frac{\sigma(a'|x_{t+1})}{\sigma(a_0|x_{t+1})}\right]+\gamma\right]
 % \end{split}
 % \end{align}
-
-% Same as:
-% \begin{align} \label{eq:exante_inversion}
+% The only unknown in the above is $W_{a_0}$ which can be solved for using fixed point iteration or matrix inversion. The value function for every state can then be estimated as:
+% \begin{eqnarray}
+% W_a(x_t)=\ln(\sigma(a|x_t))-\ln(\sigma(a_0|x_t))+W_{a_0}(x_t).\label{eq:v_backout}
+% \end{eqnarray}
+% It is then possible to estimate the reward function directly:
+% \begin{align}
 % \begin{split}
-% \overline{\mathbf{V}} &=\left[I-\sum_{a}(\mathbf{S}(a) \lambda) *\left[ \beta \mathbf{T}(a)  \right]\right]^{-1} \\
-% & \qquad \times\sum_{a}\mathbf{S}(a) *\left[ \mathbf{R}_{\theta}(a)\right]+\left[I-\sum_{a}(\mathbf{S}(a) \lambda) *\left[ \beta \mathbf{T}(a)  \right]\right]^{-1}\left[\sum_{a}\mathbf{S}(a) *\tilde{\bm{\epsilon}}(a)\right]
+% r(a,x_t)
+% &=W_a(x_t)- \beta E_{x_{t+1}|x_t,a}\Bigg\{
+% W_{a_0}(x_{t+1})
+% \\ &\left.\qquad +
+% \ln
+%   \left(
+%     1 + \sum_{a'\in\mathcal{A}\setminus a_0}\frac{\sigma(a|x_{t+1})}{\sigma(a_0|x_{t+1})}
+%   \right)
+% \right\}.
 % \end{split}
 % \end{align}
 
-% \begin{align} \label{eq:ccps}
-% \begin{split}
-% \ln\sigma(a|x_t)-\ln \sigma(a'|x_t)=\left(r(x_t,a)+\beta E_{x_{t+1}|x_t,a} \overline{V}(x_{t+1})\right)-\left(r(x_t,a')+\beta E_{x_{t+1}|x_t,a'} \overline{V}(x_{t+1})\right)
-% \end{split}
-% \end{align}
+% % \newpage
+% % \begin{align} \label{eq:ccps}
+% % \begin{split}
+% % \sigma(a|x_t)=\frac{\exp\left(r(x_t,a)+\beta E_{x_{t+1}|x_t,a} \overline{V}(x_{t+1})\right)}{\sum_{a'\in\mathcal{A}} \exp\left(r(x_t,a')+\beta E_{x_{t+1}|x_t,a'} \overline{V}(x_{t+1})\right)}
+% % \end{split}
+% % \end{align}
 
-\end{appendix}
+% % \begin{align} \label{eq:exante_inversion}
+% % \begin{split}
+% % \overline{\mathbf{V}} &=\left[I-\sum_{a}(\mathbf{S}(a) \lambda) *\left[ \beta \mathbf{T}(a)  \right]\right]^{-1} \\
+% % & \qquad \times \left[\sum_{a}\mathbf{S}(a) *\left[ \mathbf{R}_{\theta}(a)+\tilde{\bm{\epsilon}}(a)\right]\right]
+% % \end{split}
+% % \end{align}
+
+% % Same as:
+% % \begin{align} \label{eq:exante_inversion}
+% % \begin{split}
+% % \overline{\mathbf{V}} &=\left[I-\sum_{a}(\mathbf{S}(a) \lambda) *\left[ \beta \mathbf{T}(a)  \right]\right]^{-1} \\
+% % & \qquad \times\sum_{a}\mathbf{S}(a) *\left[ \mathbf{R}_{\theta}(a)\right]+\left[I-\sum_{a}(\mathbf{S}(a) \lambda) *\left[ \beta \mathbf{T}(a)  \right]\right]^{-1}\left[\sum_{a}\mathbf{S}(a) *\tilde{\bm{\epsilon}}(a)\right]
+% % \end{split}
+% % \end{align}
+
+% % \begin{align} \label{eq:ccps}
+% % \begin{split}
+% % \ln\sigma(a|x_t)-\ln \sigma(a'|x_t)=\left(r(x_t,a)+\beta E_{x_{t+1}|x_t,a} \overline{V}(x_{t+1})\right)-\left(r(x_t,a')+\beta E_{x_{t+1}|x_t,a'} \overline{V}(x_{t+1})\right)
+% % \end{split}
+% % \end{align}
+
+% \end{appendix}
 \end{document}
