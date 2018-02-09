@@ -157,7 +157,9 @@
 %\printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
 %\printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
 
-In this supplementary material we look at (1) the generalizability of CCP-IRL to non-parameteric reward estimation and (2) the robustness of CCP-IRL under noisy expert demonstrations.
+In this supplementary material we look at the generalizability of CCP-IRL to non-parameteric reward estimation.
+
+% (2) the robustness of CCP-IRL under noisy expert demonstrations.
 
 \section{Non-Parametric Estimation of the Reward Function}
 
@@ -302,21 +304,27 @@ W_{a_0}(x_{t+1})
 % \bibliography{references}
 % \bibliographystyle{icml2018}
 
-\section{Highway: Evaluating Noisy Experts}
+% \section{Highway: Evaluating Noisy Experts}
 
-\begin{figure}[b!]
-\centering
-  \begin{tabular}{cc}
-    \includegraphics[width=0.22\textwidth]{images/highway/medium_mdp_noisy_expert/test_nll_algo_3.pdf}&
-    \includegraphics[width=0.22\textwidth]{images/highway/medium_mdp_noisy_expert/test_evd_algo_3.pdf}
-    \end{tabular}
-    \caption{Results for Highway MDP with 5,000 states with noisy expert demonstrations. These demonstrations were generated with noise probability $p=0.3$. Left: Minimum NLL results with varying number of trajectories. Right: Expected Value Difference results.}
-    \label{fig:img_highway_noisy_exp}
-\end{figure}
+% \begin{figure}[b!]
+% \centering
+%   \begin{tabular}{cc}
+%     \includegraphics[width=0.22\textwidth]{images/highway/medium_mdp_noisy_expert/test_nll_algo_3.pdf}&
+%     \includegraphics[width=0.22\textwidth]{images/highway/medium_mdp_noisy_expert/test_evd_algo_3.pdf}
+%     \end{tabular}
+%     \caption{Results for Highway MDP with 5,000 states with noisy expert demonstrations. These demonstrations were generated with noise probability $p=0.3$. Left: Minimum NLL results with varying number of trajectories. Right: Expected Value Difference results.}
+%     \label{fig:img_highway_noisy_exp}
+% \end{figure}
 
-In this section, we illustrate the robustness of CCP-IRL against SCIRL when the expert demonstrations are noisy. Since, both CCP-IRL and MaxEnt-IRL use expert demonstrations to avoid solving the MDP problem, both of the algorithm's performance will be affected under noisy demonstrations. However, since SCIRL uses these noisy demonstrations direclty in a supervised learning framework we believe SCIRL's performance will be more adversely affected.
+% In this section, we illustrate the robustness of CCP-IRL against SCIRL when the expert demonstrations are noisy. Since, both CCP-IRL and MaxEnt-IRL use expert demonstrations to avoid solving the MDP problem, both of the algorithm's performance will be affected under noisy demonstrations. However, since SCIRL uses these noisy demonstrations direclty in a supervised learning framework we believe SCIRL's performance will be more adversely affected.
 
-To simulate these noisy environments we use the Highway driving experiment as used in the main paper. However, instead of using learned expert demonstrations directly, we inject random noise into these demonstrations \emph{i.e.}, with a certain probability $p$ we end up taking a completely random action instead of the optimal action. We provide such noisy demonstrations to each of the IRL algorithms. 
+% To simulate these noisy environments we use the Highway driving experiment as used in the main paper. However, instead of using learned expert demonstrations directly, we inject random noise into these demonstrations \emph{i.e.}, with a certain probability $p$ we end up taking a completely random action instead of the optimal action. We provide such noisy demonstrations to each of the IRL algorithms. 
 
+% To examine the robustness of CCP-IRL against noisy expert demonstrations we plot the NLL and EVD values in Figure \ref{fig:img_highway_noisy_exp}. As can be seen in the above figure, SCIRL fails to learn the underlying expert reward correctly in this setting. Since the given sub-optimal behavior there exists no optimal beha
+
+% Since, the demonstrated behavior is sub-optimal SCIRL fails to find a reward function that matches demonstrated features. In contrast, MaxEnt-IRL matches the sub-optimal behavior 
+
+% We believe this poor behavior is because there exsts
+% poorly because there is no optimal trajectory for any cost function that matches demonstrated features.
 
 \end{document}

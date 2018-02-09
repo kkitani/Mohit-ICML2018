@@ -196,20 +196,20 @@ To estimate the reward function given expert trajectories, past IRL methods have
 %Alternately, applying probabilistic approaches, such as Max-Ent IRL \cite{ziebart}, to continuous spaces involves its own set of assumptions.
 % Trivially, we could discretize the continuous space and then apply IRL algorithms directly. However, this scales exponentially with respect to the state space and is thus infeasible in practice. 
 
-To avoid repeatedly solving the MDP in max-margin formulations, \cite{klein2012inverse} have used expert policy estimates to reduce the IRL problem into a supervised multi-class classification problem. Since, \cite{klein2012inverse} end up solving a classification problem, they do not need to solve the original MDP. They call their algorithm, Structured Classification IRL (SCIRL). Since the expert policy estimates in SCIRL are same as maximum likelihood estimates (CCP values) used in CCP-IRL, SCIRL is similar in spirit to our work. However, a key restriction in SCIRL is that the above reduction to a classification problem is only possible assuming \emph{linear} reward parameterizations\footnote{\cite{klein2012inverse} suggest using basis functions to generate flexibility, however, this introduces another layer of approximation and is not generalizable.}. In contrast, CCP-IRL does not involve such assumptions, and can be used to extract both parameterized (linear and non-linear) as well as non-parameterized reward functions. Additionally, since SCIRL solves a max-margin problem, it suffers from practical and theoretical difficulties when learning under imperfectly demonstrated behavior \cite{ziebart2010modeling}. Alternately, since CCP-IRL is constrained to match demonstated feature expectations, it is guaranteed to match the performance of demonstrated behavior even if it is sub-optimal.
+To avoid repeatedly solving the MDP in max-margin formulations, \cite{klein2012inverse} use expert policy estimates to cast an IRL problem, with a linearly parameterized reward, into a supervised multi-class classification problem and call it Structured Classification IRL (SCIRL). Reducing the IRL problem to a classification problem allows one to avoid solving the MDP. Since the expert policy estimates in SCIRL are the same as CCP values used in our CCP-IRL, SCIRL is similar in spirit to our work. However, a key restriction in SCIRL is the \emph{linear} parameterization of the reward function\footnote{\cite{klein2012inverse} suggest using basis functions to generate flexibility, however, this introduces another layer of approximation and is not generalizable to non-linear reward functions.}. In contrast, CCP-IRL does not involve such assumptions, and can be used to extract both parameterized (linear and non-linear) as well as non-parameterized reward functions. Additionally, since SCIRL solves a max-margin problem, it suffers from theoretical difficulties when learning under observations of suboptimal  behavior, as discussed in \cite{ziebart2010modeling}. Alternately, since CCP-IRL is constrained to match demonstrated feature expectations, it is guaranteed to match the performance of demonstrated behavior even if it is sub-optimal.
 
-One work that avoids repeated MDP calculation in MaxEnt-IRL is, Relative Entropy IRL (RelEntIRL) \cite{boularias2011relative}. RelEntIRL uses a sampling based approach, by following an arbitrary policy, to estimate the partition function. However, this still requires sampling trajectories according to the policy being optimal for the current reward, which involves solving the MDP. To avoid this, RelEntIRL uses importance sampling between a baseline policy and the arbitrary sampling policy. However, for equivalence with maximum entropy methods, the baseline policy needs to be uniform, which reduces the above method to simple feature matching only and hence might not be suitable for complex MDPs \cite{finn2016guided}. Further, such importance sampling based methods often suffer from high variance \cite{hammersley1964general}.
-In contrast, CCP-IRL avoids solving the MDP problem by using CCP estimates to derive an efficient representation of the value function. This allows CCP-IRL to avoid sampling using an arbitrary policy and it does not suffer from the high variance associated with importance sampling based techniques.
+One work that avoids solving the MDP repeatedly in MaxEnt-IRL is Relative Entropy IRL (RelEntIRL) \cite{boularias2011relative}. RelEntIRL uses a sampling based approach, by following an arbitrary policy, to estimate the partition function. However, this still requires sampling trajectories according to the policy being optimal for the current reward, which involves solving the MDP. To avoid this, RelEntIRL uses importance sampling between a baseline policy and the arbitrary sampling policy. However, for equivalence with maximum entropy methods, the baseline policy needs to be uniform, which reduces the method to feature matching and may not be suitable for complex MDPs \cite{finn2016guided}. Further, RelEntIRL can also suffer from the high variance associated with importance sampling based methods \cite{hammersley1964general}.
+In contrast, CCP-IRL avoids solving the MDP problem by using an efficient representation of the value function. This allows CCP-IRL to avoid sampling from an arbitrary policy and avoids the high variance associated with sampling based techniques.
 
-Alternately, another method that avoids solving the MDP problem focuses on linearly solvable MDP problems only \cite{todorov2007linearly}. Dvijotham and Todorov \yrcite{dvijotham2010inverse} present an efficient IRL algorithm, which they call OptV, for such linearly solvable MDPs. However, this new class of MDPs assume that the Bellman equation can be transformed into a linear equation. This is a large approximation over the traditional MDP formulation.
-Also, since OptV uses value-function parameterization instead of the usual cost-function parameterization, it suffers from generalization difficulties when these parameters are transferred across environments \cite{ziebart_phd, levine2012continuous}.
+Alternately, another method that avoids solving the MDP problem focuses on linearly solvable MDP problems \cite{todorov2007linearly}. Dvijotham and Todorov \yrcite{dvijotham2010inverse} present an efficient IRL algorithm, which they call OptV, for such linearly solvable MDPs. However, this new class of MDPs assume that the Bellman equation can be transformed into a linear equation. This is a large approximation over the traditional MDP formulation.
+Also, since OptV uses value-function parameterization instead of the usual cost-function parameterization, it suffers from generalization difficulties when the value-function parameters are transferred across environments \cite{ziebart_phd, levine2012continuous}.
 
 % To scale Max-Ent IRL \cite{ziebart} to large spaces, past work \cite{huang2015approximate} has focused on approximating the value iteration step in IRL. However, since the MDP problem is still being solved (although approximately) repeatedly, this does not scale to very large spaces. For continuous domains, most algorithms use local approximation to estimate the partition function in MaxEnt-IRL. Using local approximations requires giving up on global optimality, but allows the algorithms to scale to high dimensional continuous domains \cite{levine2012continuous, kalakrishnan2013learning, finn2016guided}. Although, the CCP approach can be applied to continuous control settings \cite{altuug1998effect}, it is not yet clear how it can be extended to high dimensional control spaces in robotics. It would be interesting to see how the CCP approach can be combined with the above approximations in continuous spaces.
 
 % Other work \cite{levine2012continuous, kalakrishnan2013learning, finn2016guided} has also used local approximation to estimate the partition function in MaxEnt-IRL. Using local approximations requires giving up on global optimality, but allows the algorithms to scale to high dimensional continuous domains. In contrast, the CCP approach has also been applied to continuous control settings \cite{altuug1998effect}. However, such approaches are beyond the scope of our initial work.
 
 In contrast to previous works, our CCP-IRL algorithm is generally applicable, as it does not involve any assumption on the MDP framework. 
-Further, it is applicable to both parameterized (linear and non-linear) and non-parameterized reward function formulations. Moreover, the CCP approach is applicable to situations with continuous state or action spaces \cite{altuug1998effect}. There has also been progress in applying CCP-like estimators to continuous controls in complex environments, such as dynamic strategic settings \cite{pesendorfer}. However, in this preliminary work we focus on discrete problem settings to highlight more on the connections between economics and robotics literature.
+Further, it is applicable to both parameterized (linear and non-linear) and non-parameterized reward function formulations. Moreover, the CCP approach is applicable to situations with continuous state or action spaces \cite{altuug1998effect}. There has also been progress in applying CCP-like estimators to continuous controls in complex environments, such as dynamic strategic settings \cite{pesendorfer}. However, in this preliminary work we focus on discrete problem settings to establish the fundamental connections between economics and robotics literature, and leave a discussion of continuous extensions for future work.
 
 %==========================================================%
 
@@ -502,25 +502,27 @@ Defining $A \equiv \left(I- \beta \sum_{a}(\mathbf{S}(a) \lambda) *\left[ \mathb
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Experiments} \label{experiments}
 
-To illustrate the computational efficiency of CCP-IRL we experiment on multiple benchmark problems. We show that CCP-IRL is able to match expert performance with \textit{much less} computational time. Further, as noted before, we also examine the underlying assumptions of consistent CCP estimates. For this, we see how CCP-IRL's performance is affected by the number of expert demonstrations.
+To understand the strengths and weaknesses of our proposed CCP-IRL technique, we examine the performance of our method along three dimensions: (1) computational efficiency: How fast is CCP-IRL? (2) data requirements: How much data is needed to obtain reliable CCP estimates? and (3) generalizability: How well does CCP-IRL handle various forms of reward functions?
+
+
+%To examine the computational efficiency of CCP-IRL we experiment on multiple benchmark IRL problems. Empirical evidence shows that CCP-IRL is able to match expert performance with \textit{much less} computational time when compared to MaxEnt-IRL. Further, as noted before, we also examine the underlying assumptions of consistent CCP estimates. For this, we see how CCP-IRL's performance is affected by the number of expert demonstrations.
+
 % To validate our approach we illustrate, (1) the computational efficiency of CCP-IRL and (2) the underlying assumptions of consistent CCP estimates \emph{i.e.,} we show the data requirement for CCP-IRL. To verify the computational improvement using CCP-IRL, we compare the CPU time. We show that our algorithm is able to achieve similar qualitative and quantitative performance with \textit{much less} computational time. Additionally, to verify the assumptions of consistent CCP estimates we see how CCP-IRL is affected by the number of expert demonstrations.
 
-To show the generalizability of CCP-IRL to both linear and non-linear parameterizations we experiment with both of these formulations. For each formulation we use benchmark tasks used previously in the IRL literature \cite{klein2012inverse, Levine2013}. For the former, similar to previous works \cite{abbeel2004apprenticeship, klein2012inverse}, we use a car driving simulator. While for the latter, we use the Objectworld task as described in \cite{Levine2013}. 
+%To show the generalizability of CCP-IRL to both linear and non-linear parameterizations we experiment with both of these formulations. For each formulation we use benchmark tasks used previously in the IRL literature \cite{klein2012inverse, Levine2013}. For the former, similar to previous works \cite{abbeel2004apprenticeship, klein2012inverse}, we use a car driving simulator. While for the latter, we use the Objectworld task as described in \cite{Levine2013}. 
 
-\noindent{\textbf{Baselines:}} As discussed above, CCP-IRL is most closely related to MaxEnt-IRL, hence we use it as a baseline method to compare our results. Also, we use SCIRL as another baseline.
-Since SCIRL also uses expert CCP estimates, although in a max-margin formulation, we use both SCIRL and CCP-IRL to show the efficacy of using CCP estimates in an IRL framework. Further, we also use SCIRL to highlight the generalizability of CCP-IRL to non-linear reward formulations, 
+\noindent{\textbf{Baselines:}} As discussed earlier CCP-IRL is closely related to MaxEnt-IRL as they have identical objective functions (though they are derived from two different perspectives). We use MaxEnt-IRL as the primary IRL baseline algorithm for comparision. For our secondary baseline algorithm, we compare against SC-IRL which can be interpreted to be a max-margin IRL algorithm that makes use of CCP estimates.
 
-\noindent{\textbf{Metrics:}} For comparative analysis, we use negative log likelihood (NLL) \cite{kitani2012activity} and expected value difference (EVD) \cite{levine2011nonlinear}. NLL is a probabilistic comparison metric and evaluates the likelihood of a path under the predicted policy. For a policy $\pi$, NLL is defined as, $NLL(\pi) = E_{\pi(a|s)}\left[-\log \prod_{t} \pi(a_{t}|s_{t}) \right]$.
-% Unfortunately, NLL cannot capture the underlying stochastic nature of the expert policy since it assumes deterministic transitions in expert trajectories.
-% As another metric of success, similar to related works \cite{Levine2013, wulfmeier2015maximum}, we use expected value difference (EVD). 
-In contrast, EVD measures the difference between the optimal and learned policy by comparing the value function obtained with each policy under the \textit{true reward} distribution. Further, to verify the computational advantage of CCP-IRL, we compare the CPU time taken by each algorithm.
+%We also use SC-IRL as another baseline.Since SCIRL also uses expert CCP estimates, although in a max-margin formulation, we use both SC-IRL and CCP-IRL to show the efficacy of using CCP estimates in an IRL framework. Further, we also use SCIRL to highlight the generalizability of CCP-IRL to non-linear reward formulations, 
+
+\noindent{\textbf{Metrics:}} For comparative analysis, we use the negative log likelihood (NLL) \cite{kitani2012activity} and the expected value difference (EVD) \cite{levine2011nonlinear}. NLL is a probabilistic comparison metric and evaluates the likelihood of a path under the predicted policy. For a policy $\pi$, NLL is defined as, $NLL(\pi) = E_{\pi(a|s)}\left[-\log \prod_{t} \pi(a_{t}|s_{t}) \right]$. In contrast, EVD directly measures the difference between the optimal and learned policy by comparing the value function values obtained with each policy under the \textit{true reward} distribution. 
 
 
-%For computational analysis all experiments were run on a PC with an Intel Xeon CPU E5-2660 v3 2.60 GHz (10 cores) processor with an NVIDIA TITAN X (Pascal) GPU.
+\subsection{Highway Driving: Linear Reward Function} 
 
-\subsection{Highway: Evaluating Linear Rewards} 
+We begin by examining an IRL problem which has the simplest form of reward function -- a linear function of state features. Under this linear reward function, we evaluate (1) the computational speed of our CCP-IRL algorithm and (2) the effect of the amount of data on the quality of the recovered reward function.
 
-First we look at the computational efficiency of CCP-IRL in environments where the reward is a linear function of the state features. We also examine CCP-IRL's assumption of consistent CCP estimates.
+%First we look at the computational efficiency of CCP-IRL in environments where the reward is a linear function of the state features. We also examine CCP-IRL's assumption of consistent CCP estimates.
 
 % \begin{table}[t]
 % \centering
@@ -538,22 +540,7 @@ First we look at the computational efficiency of CCP-IRL in environments where t
 % }
 % \label{table:table_results_macro_cells}
 % \end{table}
-\begin{table}[t]
-\centering
-\def\arraystretch{1.3}% 
-\begin{tabular}{|c|c|c|c|c|}
-\hline
-|S| & MaxEnt (sec) & CCP (sec) & Speedup \\\hline
-$10^3$ & 1038.25 & \textbf{127.35}  &  $\mathbf{9}\times$ \\
-$10^4$ & 4809.82 & \textbf{457.17} & $\mathbf{10}\times$ \\
-$10^5$ & 27745.74 & \textbf{2835.38} & $\mathbf{10}\times$ \\
-$10^6$ & 197399.03 & \textbf{16982.17} & $\mathbf{12}\times$ \\
-\hline
-\end{tabular}
-\caption{\textbf{Computation time} (averaged over multiple runs) comparison between different IRL algorithms for Highway MDP settings. Each experiment was run for same number of iterations.
-}
-\label{table:table_results_macro_cells}
-\end{table}
+
 
 % \begin{figure}[t]
 % \centering
@@ -575,7 +562,48 @@ $10^6$ & 197399.03 & \textbf{16982.17} & $\mathbf{12}\times$ \\
 %     \caption{Computation time (in seconds and averaged over multiple runs) comparison between MaxEnt and CCP for Gridworld with gridsize of 32. Each experiment was run for 50 iterations. }
 %     \label{fig:img_gridworld_maxent_vs_ccp_time_discount}
 % \end{figure}
-\begin{figure}[t]
+
+
+
+Similar to previous works \cite{abbeel2004apprenticeship, klein2012inverse}, we use a car driving simulator for the linear reward function setting. The optimal policy in this environment is to drive on a multi-lane highway while avoiding collisions with other cars. The agent's car can either move left or right, accelerate, decelerate or keep a constant speed. The underlying linear reward function is defined as a linear function of staying on the road, avoiding collisions and driving with high speed.
+Following Klein \emph{et al.} \yrcite{klein2012inverse}, we parameterize the state space using 9 horizontal positions for the user's car, 3 horizontal and 9 vertical positions for the closest traffic's car and 3 speeds. This yields a state feature vector of size $729$. For experiments with MDPs with large state space, we increase the granularity of each of the quantization bins, such as, car speed, number of lanes \emph{etc.}. However, the one-hot feature representation used in \cite{klein2012inverse}, does not scale well to extremely large state spaces (\emph{e.g.,} millions of states). Hence, for very large state spaces, we group adjacent lanes and closest traffic car's position into one feature, to keep the feature vector representation compact.
+
+
+\begin{table}[tb]
+\centering
+\def\arraystretch{1.3}% 
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+|S| & MaxEnt (sec) & CCP (sec) & Speedup \\\hline
+$10^3$ & 1038.25 & \textbf{127.35}  &  $\mathbf{9}\times$ \\
+$10^4$ & 4809.82 & \textbf{457.17} & $\mathbf{10}\times$ \\
+$10^5$ & 27745.74 & \textbf{2835.38} & $\mathbf{10}\times$ \\
+$10^6$ & 197399.03 & \textbf{16982.17} & $\mathbf{12}\times$ \\
+\hline
+\end{tabular}
+\caption{\textbf{Computation time} (averaged over multiple runs) comparison between different IRL algorithms for Highway MDP settings. Each experiment was run for same number of iterations.
+}
+\label{table:table_results_macro_cells}
+\end{table}
+
+
+First, we evaluate the computational speed of CCP-IRL against MaxEnt-IRL over differing sizes of the state space ($10^3$ to $10^6$). A summary of computational speed (CPU usage in seconds) is given in Table~\ref{table:table_results_macro_cells}. For the IRL problem with only 1000 states, our method provides a 9$\times$ speed up. For the largest state space of 1 million, our CCP-IRL is 12$\times$ faster than MaxEnt-IRL. The pre-computation of average feature counts (and thus the removal of repeated calls to a DP algorithm) utilized by our CCP-IRL method gives a significant speed advantage over MaxEnt-IRL, especially as the state space grows larger.
+
+
+
+
+Next we analyze how the amount of data effects the performance of CCP-IRL.
+Figure \ref{fig:img_maxent_vs_ccp_gridworld_macro_cell} plots the NLL and EVD as a function of increasing the amount of data (\emph{i.e.,} number of expert trajectories). When the amount of trajectories is limited (less than 20) CCP- IRL shows poor performance as only a few CCP estimates are observed.
+However, with a moderate number of trajectories ($\sim$30) CCP-IRL is able to recover a reward function which can be used to mimic expert behavior well. When compared against MaxEnt IRL, CCP-IRL does require a slightly larger number of trajectories. This is expected as CCP-IRL requires sufficient samples from the expert policy to obtain reliable CCP estimates. Interestingly, we observe that SC-IRL is able to obtain a better NLL and EVD score when only a limited number (less than 20) of expert trajectories are available. We believe that when the reward function is linear, it may be easier to solve the supervised learning problem instead of solving the reinforcement learning problem. However, the more important observation is that the use of CCP estimates, whether in a MaxEnt approach or Max-Margin approach can lead to algorithms with low sample complexity.
+
+
+
+
+%However, Figure \ref{fig:img_maxent_vs_ccp_gridworld_macro_cell} also shows that the sample complexity for CCP-IRL is not significantly worse than MaxEnt-IRL. Interestingly, SCIRL requires less data compared to both MaxEnt-IRL and CCP-IRL. 
+
+%We believe this is because SCIRL is solving a supervised classification problem to directly imitate the expert, and such supervised learning provide better learning guarantees than RL based approaches \cite{beygelzimer2011contextual}. However, the low sample complexity of both SCIRL and CCP-IRL reflects the efficacy of CCPs in an IRL setting.
+
+\begin{figure}[tb]
 \centering
   \begin{tabular}{cc}
     \MSHangBox{\includegraphics[width=0.22\textwidth]{images/highway/medium_mdp_smooth/test_nll_algo_3.pdf}}&
@@ -586,22 +614,9 @@ $10^6$ & 197399.03 & \textbf{16982.17} & $\mathbf{12}\times$ \\
     \vspace{-0.2cm}
 \end{figure}
 
-
-Similar to previous works \cite{abbeel2004apprenticeship, klein2012inverse}, we use a car driving simulator for linear reward setting. The goal in this environment is to drive on a multi-lane highway without crashing. The agent's car can either move left or right, accelerate, decelerate or keep a constant speed. For the true reward, we penalize off-road driving and collisions while favoring high speed. 
-
-For our reward feature vector, we use a discretization of the state space. In the simplest case, similar to, Klein \emph{et al.} \yrcite{klein2012inverse}, we parameterize the state space using 9 horizontal positions for the user's car, 3 horizontal and 9 vertical positions for the closest traffic's car and 3 speeds. This yields a feature vector of size $729$. For MDPs with large state space, we increase each of the above MDP parameters, such as, car speed, number of lanes \emph{etc.}. However, a one-hot feature representation, as used in \cite{klein2012inverse}, does not scale to such large MDPs. Hence for large MDPs, we group adjacent lanes and closest traffic car's position together, to keep the feature vector representation compact.
-
-First, we verify verify the computational advantage for CCP-IRL across large state spaces ($|S| \in \{10^3, 10^6\}$) in Table~\ref{table:table_results_macro_cells}. CCP-IRL is almost 10$\times$ faster than MaxEnt-IRL, across both large and small state spaces. This gives a significant advantage when running on large spaces, since MaxEnt-IRL is prohibitively expensive in such settings. Also, since SCIRL follows a completely different algorithmic approach to IRL, we do not directly compare the computation time for SCIRL with probabilistic IRL approaches, such as, CCP-IRL and MaxEnt-IRL. However, we do note that in preliminary experiments we found SCIRL to be at least $2\times$ as fast as CCP-IRL.
-
-We also analyze the performance of CCP-IRL given different amounts of expert trajectories.
-Figure \ref{fig:img_maxent_vs_ccp_gridworld_macro_cell} compares the NLL and EVD results against increasing number of expert trajectories.
-As seen above, all algorithms show poor performance given very few trajectories (< 20 trajectories).
-However, with moderate number of trajectories ($\sim$30) all algorithms approach expert behavior.
-We also verify CCP-IRL's assumption of consistent CCP estimates in Figure \ref{fig:img_maxent_vs_ccp_gridworld_macro_cell}. As seen above, CCP-IRL requires slightly more number of trajectories to match expert behavior as compared to MaxEnt-IRL. Interestingly, SCIRL requires less data compared to both MaxEnt-IRL and CCP-IRL. We believe this is because SCIRL is solving a supervised classification problem to directly imitate the expert, and such supervised learning provides better learning guarantees than RL based approaches \cite{beygelzimer2011contextual}. However, the low sample complexity of both SCIRL and CCP-IRL reflect the efficacy of CCPs in an IRL setting.
-
 %However, SCIRL is much faster than both CCP-IRL and MaxEnt-IRL. This is because rather than solving a complex maximum entropy problem, SCIRL solves a multi-class classification problem using the max-margin approach. Although, SCIRL is able to infer the appropriate reward in our setting, such structured margin classifiers suffer from other drawbacks as discussed in \cite{ziebart2010modeling}. Additionally, as we show below, SCIRL works for linear reward parameterization only, which greatly reduces its applicability in complex scenarios. Despite this, the efficacy of the SCIRL and CCP-IRL reflect that, combining CCP estimates from expert trajectories with the MDP structure can significantly boost IRL performance without sacrificing the sample complexity too much. 
 
-\subsection{Objectworld: Evaluating Non-Linear Rewards}
+\subsection{Objectworld: Non-Linear Reward Function}
 
 To show that the computational advantage of CCP-IRL also generalizes to non-linear reward formulations, we use the Objectworld \cite{levine2011nonlinear} environment, since the reward function is a non-linear function of state features.
 Similar to related work \cite{wulfmeier2015maximum}, we use a Deep Neural Network (DNN) as the non-linear function approximator.
