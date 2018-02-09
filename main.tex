@@ -623,7 +623,7 @@ However, with a moderate number of trajectories ($\sim$30) CCP-IRL is able to re
     \MSHangBox{\includegraphics[width=0.22\textwidth]{images/highway/medium_mdp_smooth/test_nll_algo_3.pdf}}&
     \MSHangBox{\includegraphics[width=0.22\textwidth]{images/highway/medium_mdp_smooth/test_evd_algo_3.pdf}}
     \end{tabular}
-    \caption{Results for Highway MDP with 5,000 states. Left: Minimum NLL results with varying number of trajectories. Right: Expected Value Difference results.}
+    \caption{Results for Highway MDP with 5,000 states. Left: Minimum NLL results with varying number of trajectories. Right: Expected Value Difference results. Each expert trajectory was of length 30.}
     \label{fig:img_maxent_vs_ccp_gridworld_macro_cell}
     \vspace{-0.2cm}
 \end{figure}
@@ -662,7 +662,7 @@ Grid size: 128, C = 4 & 237278.48 & \textbf{27886.87} & $\mathbf{8}\times$ \\ \b
     \MSHangBox{\includegraphics[width=0.23\textwidth]{images/objectworld/grid_32_obj_30_algo_3_try_2/test_nll_algo_3.pdf}}
     \MSHangBox{\includegraphics[width=0.23\textwidth]{images/objectworld/grid_32_obj_30_algo_3_try_2/evd_num_algo_3.pdf}}
   \end{tabular}
-    \caption{Results on ObjectWorld with gridsize of 50 and 2 colors. Left: NLL results on test trajectories. Right: Expected Value Difference results. }
+    \caption{Results on ObjectWorld with gridsize of 50 and 2 colors. Left: NLL results on test trajectories. Right: Expected Value Difference results. Each expert trajectory was of length 30.}
     \label{fig:img_objectworld_maxent_vs_ccp_lr_01}
 \end{figure}
 
@@ -686,6 +686,7 @@ Grid size: 128, C = 4 & 237278.48 & \textbf{27886.87} & $\mathbf{8}\times$ \\ \b
     \end{tabular}
     \caption{ Reward distribution for Objectworld with gridsize 8 using 30 trajectories and 5 colors. Dark - low reward, Light - high reward. We also plot the inner and outer color of each object. \textit{Pink} - color 1 \textit{Orange} - color 2, other colors are distractors. \textit{Figure best viewed in electronic version.} }
     \label{fig:img_reward_map_objectworld}
+    \vspace{-.4cm}
 \end{figure}
 
 Similar to related work \cite{wulfmeier2015maximum}, we use a deep neural network (DNN) as the non-linear function approximator.
@@ -693,10 +694,10 @@ We use similar DNN architecture for both CCP-IRL and MaxEnt-IRL. Precisely, we u
 
 First, we compare the computation speed for CCP-IRL and MaxEnt-IRL, Table \ref{table:table_results_objectworld} shows the computation time for both algorithms across differening sized state spaces ($10^3$ to $10^4$). For, smaller state spaces ($10^3$), our method provides a $6\times$ speedup. While for larger state spaces CCP-IRL is $8\times$ faster than MaxEnt-IRL. Thus, as seen in the linear case, CCP-IRL provides a huge computation advantage over MaxEnt-IRL across small and large state spaces. Further, we also note that for more complex MDP problems the computational advantage for CCP-IRL would be much larger. To illustrate this, we run the Objectworld experiment with different discount values, since larger discount values lead to infinite horizon MDP problems which are computationally more expensive. We confirm this in Figure \ref{fig:img_objectworld_maxent_vs_ccp_time_results}, as can be seen in the above figure, with increasing discount values MaxEnt-IRL's computation time increases super-linearly (almost exponentially) while CCP-IRL scales sub-linearly.
 
-We now analyze the data requirement for our proposed DeepCCP-IRL algorithm in Figure \ref{fig:img_objectworld_maxent_vs_ccp_lr_01}. Notice that as observed before, with few expert trajectories all algorithms perform poorly. However, both DeepMaxEnt-IRL and DeepCCP-IRL match expert performance with moderate number of trajectories ($\approx 30$). Figure \ref{fig:img_objectworld_maxent_vs_ccp_lr_01} also verifies the larger sample complexity for CCP-IRL, as CCP-IRL exhibits larger variance with few expert trajectories as compared to MaxEnt-IRL.
-In contrast, SCIRL approach fails to learn the appropriate parameters in this setting. Although, given more expressive non-linear features a linear parameterization could suffice for this simple problem, however, completely non-linear parameterizations for SCIRL have been unexplored. 
+We now analyze how the amount of data affects CCP-IRL. Figure \ref{fig:img_objectworld_maxent_vs_ccp_lr_01} plots the NLL and EVD against number of expert demonstrations. Notice that, as observed before, with few expert trajectories (less than 20) all algorithms perform poorly. However, both MaxEnt-IRL and CCP-IRL match expert performance with moderate number of trajectories ($\approx 30$). However, notice that MaxEnt-IRL converges around 20 trajectories while CCP-IRL requires close to 25 trajectories. This larger sample complexity for CCP-IRL is expected given that it requires consistent CCP estimates, however, more importantly we observe that the difference in sample complexity is not large.
+In contrast, SC-IRL fails to learn the appropriate parameters in this setting. Although, given more expressive non-linear features, a linear parameterization could suffice for this simple problem, completely non-linear parameterizations for SCIRL have been unexplored. 
 
-In this section, we looked at the computational advantage of CCP-IRL for parameterized (linear and non-linear) reward functions. In the supplementary material, we further show how the CCP approach can be generalized to estimate the reward functions in a completely \textit{non-parameteric} setting.
+In this section, we looked at how CCP-IRL generalizes to parameterized (linear and non-linear) reward functions. In the supplementary material, we further derive how the CCP approach can be used to estimate the reward functions in a \textit{non-parameteric} setting.
 
 % Also, we qualitatively look at the inferred reward to verify how well the DNN is able to approximate the non-linear reward. Figure \ref{fig:img_reward_map_objectworld} plots the inferred rewards against the true reward function. Notice that both algorithms capture the non-linearities in the underlying reward function and consequently match the expert behavior. Thus, a deep neural network suffices as a non-linear function approximator for CCP-IRL.
 
